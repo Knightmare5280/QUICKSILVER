@@ -222,15 +222,21 @@ __attribute__((__used__)) int main() {
     perf_counter_start(PERF_COUNTER_TOTAL);
 
     uint32_t time = time_micros();
-    state.looptime_us = ((uint32_t)(time - lastlooptime));
+    state.looptime_us_us = ((uint32_t)(time - lastlooptime));
     lastlooptime = time;
 
     if (state.looptime_us <= 0) {
       state.looptime_us = 1;
     }
 
+    if (state.looptime_us <= 0) {
+      state.looptime_us = 1;
+    }
+
+    state.looptime = state.looptime_us * 1e-6f;
+
     // max loop 20ms
-    if (state.looptime_us > 20000) {
+    if (state.looptime > 0.02f) {
       failloop(FAILLOOP_LOOPTIME);
     }
 
