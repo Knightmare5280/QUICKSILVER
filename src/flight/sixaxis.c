@@ -28,6 +28,24 @@
 // this is the value of both cos 45 and sin 45 = 1/sqrt(2)
 #define INVSQRT2 0.707106781f
 
+<<<<<<< HEAD:src/flight/sixaxis.c
+=======
+//<<<<<<< HEAD
+// temporary fix for compatibility between versions
+#ifndef GYRO_ID_1
+#define GYRO_ID_1 0x68
+#endif
+#ifndef GYRO_ID_2
+#define GYRO_ID_2 0x98
+#endif
+#ifndef GYRO_ID_3
+#define GYRO_ID_3 0x7D
+#endif
+#ifndef GYRO_ID_4
+#define GYRO_ID_4 0x72
+#endif
+
+>>>>>>> 53276eff (auto detect gyro type):src/main/flight/sixaxis.c
 #define SMITH_MAX_SAMPLES 6 * 8
 
 typedef struct {
@@ -37,6 +55,8 @@ typedef struct {
   uint8_t sample_count;
 } smith_predictor_t;
 
+=======
+>>>>>>> 6ad95958 (auto detect gyro type)
 static filter_t filter[FILTER_MAX_SLOTS];
 static filter_state_t filter_state[FILTER_MAX_SLOTS][3];
 
@@ -45,6 +65,7 @@ extern target_info_t target_info;
 
 float gyrocal[3];
 
+//<<<<<<< HEAD
 static float smith_predictor_strength = 0.5f;
 static float smith_predictor_delay = 4.0f;
 static uint16_t smith_predictor_filter_hz = 5;
@@ -82,8 +103,17 @@ static float smith_predictor_step(uint8_t axis, float sample) {
   return sample + delay_compenstated_sample;
 }
 
+<<<<<<< HEAD:src/flight/sixaxis.c
 bool sixaxis_init() {
   const gyro_types_t id = gyro_spi_init();
+=======
+uint8_t sixaxis_init() {
+  const uint8_t id = spi_gyro_init();
+=======
+bool sixaxis_init() {
+  const gyro_types_t id = gyro_spi_init();
+>>>>>>> 6ad95958 (auto detect gyro type)
+>>>>>>> 53276eff (auto detect gyro type):src/main/flight/sixaxis.c
 
   target_info.gyro_id = id;
 

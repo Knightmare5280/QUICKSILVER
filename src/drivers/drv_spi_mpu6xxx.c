@@ -21,15 +21,60 @@
 
 extern spi_bus_device_t gyro_bus;
 
+<<<<<<< HEAD
 static uint32_t mpu6xxx_fast_divider() {
   switch (gyro_type) {
   default:
   case GYRO_TYPE_ICM20649:
     return MHZ_TO_HZ(7);
+=======
+static void mpu6xxx_reinit_slow() {
+  spi_dma_wait_for_ready(GYRO_SPI_PORT);
+  LL_SPI_Disable(PORT.channel);
+
+  // SPI Config
+  LL_SPI_DeInit(PORT.channel);
+  LL_SPI_InitTypeDef spi_init;
+  spi_init.TransferDirection = LL_SPI_FULL_DUPLEX;
+  spi_init.Mode = LL_SPI_MODE_MASTER;
+  spi_init.DataWidth = LL_SPI_DATAWIDTH_8BIT;
+  spi_init.ClockPolarity = LL_SPI_POLARITY_HIGH;
+  spi_init.ClockPhase = LL_SPI_PHASE_2EDGE;
+  spi_init.NSS = LL_SPI_NSS_SOFT;
+  spi_init.BaudRate = spi_find_divder(SPI_SPEED_INIT);
+  spi_init.BitOrder = LL_SPI_MSB_FIRST;
+  spi_init.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
+  spi_init.CRCPoly = 7;
+  LL_SPI_Init(PORT.channel, &spi_init);
+
+  LL_SPI_Enable(PORT.channel);
+}
+
+static void mpu6xxx_reinit_fast() {
+  spi_dma_wait_for_ready(GYRO_SPI_PORT);
+  LL_SPI_Disable(PORT.channel);
+
+  // SPI Config
+  LL_SPI_DeInit(PORT.channel);
+  LL_SPI_InitTypeDef spi_init;
+  spi_init.TransferDirection = LL_SPI_FULL_DUPLEX;
+  spi_init.Mode = LL_SPI_MODE_MASTER;
+  spi_init.DataWidth = LL_SPI_DATAWIDTH_8BIT;
+  spi_init.ClockPolarity = LL_SPI_POLARITY_HIGH;
+  spi_init.ClockPhase = LL_SPI_PHASE_2EDGE;
+  spi_init.NSS = LL_SPI_NSS_SOFT;
+
+  switch (gyro_type) {
+  default:
+  case GYRO_TYPE_ICM20649:
+    spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(7));
+    break;
+>>>>>>> 53276eff (auto detect gyro type)
 
   case GYRO_TYPE_ICM20601:
   case GYRO_TYPE_ICM20608:
   case GYRO_TYPE_ICM20689:
+<<<<<<< HEAD
     return MHZ_TO_HZ(8);
 
   case GYRO_TYPE_ICM20602:
@@ -38,6 +83,19 @@ static uint32_t mpu6xxx_fast_divider() {
   case GYRO_TYPE_MPU6000:
   case GYRO_TYPE_MPU6500:
     return MHZ_TO_HZ(21);
+=======
+    spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(8));
+    break;
+
+  case GYRO_TYPE_ICM20602:
+    spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(10.5));
+    break;
+
+  case GYRO_TYPE_MPU6000:
+  case GYRO_TYPE_MPU6500:
+    spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(21));
+    break;
+>>>>>>> 53276eff (auto detect gyro type)
   }
 
   return SPI_SPEED_INIT;
@@ -67,7 +125,37 @@ uint8_t mpu6xxx_detect() {
   }
 }
 
+<<<<<<< HEAD
 void mpu6xxx_configure() {
+=======
+uint8_t mpu6xxx_detect() {
+  mpu6xxx_init();
+
+  const uint8_t id = mpu6xxx_read(MPU_RA_WHO_AM_I);
+  switch (id) {
+  case MPU6000_ID:
+    return GYRO_TYPE_MPU6000;
+  case MPU6500_ID:
+    return GYRO_TYPE_MPU6500;
+  case ICM20601_ID:
+    return GYRO_TYPE_ICM20601;
+  case ICM20602_ID:
+    return GYRO_TYPE_ICM20602;
+  case ICM20608_ID:
+    return GYRO_TYPE_ICM20608;
+  case ICM20649_ID:
+    return GYRO_TYPE_ICM20649;
+  case ICM20689_ID:
+    return GYRO_TYPE_ICM20689;
+  default:
+    return GYRO_TYPE_INVALID;
+  }
+}
+
+void mpu6xxx_configure() {
+  mpu6xxx_init();
+
+>>>>>>> 53276eff (auto detect gyro type)
   mpu6xxx_write(MPU_RA_PWR_MGMT_1, MPU_BIT_H_RESET); // reg 107 soft reset  MPU_BIT_H_RESET
   time_delay_ms(100);
   mpu6xxx_write(MPU_RA_SIGNAL_PATH_RESET, MPU_RESET_SIGNAL_PATHWAYS);
