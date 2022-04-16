@@ -149,6 +149,8 @@ __attribute__((__used__)) int main() {
 
   osd_clear();
 
+  reset_looptime();
+
   while (1) {
     scheduler_update();
   }
