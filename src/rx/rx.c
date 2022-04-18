@@ -11,6 +11,12 @@
 #include "project.h"
 #include "util/util.h"
 
+<<<<<<< HEAD
+=======
+extern void rx_protocol_init();
+extern bool rx_check();
+
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 extern profile_t profile;
 
 uint8_t failsafe_siglost = 0;
@@ -33,17 +39,29 @@ static const uint16_t RX_SMOOTHING_HZ[RX_PROTOCOL_MAX] = {
     67,  // RX_PROTOCOL_CRSF,
     50,  // RX_PROTOCOL_IBUS, check these
     50,  // RX_PROTOCOL_FPORT, check these
+<<<<<<< HEAD
     0,   // RX_PROTOCOL_DSM,
+=======
+    40,  // RX_PROTOCOL_DSM,
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
     90,  // RX_PROTOCOL_NRF24_BAYANG_TELEMETRY,
     90,  // RX_PROTOCOL_BAYANG_PROTOCOL_BLE_BEACON,
     90,  // RX_PROTOCOL_BAYANG_PROTOCOL_TELEMETRY_AUTOBIND,
     50,  // RX_PROTOCOL_FRSKY_D8,
+<<<<<<< HEAD
     50,  // RX_PROTOCOL_FRSKY_D16_FCC,
     50,  // RX_PROTOCOL_FRSKY_D16_LBT,
+=======
+    50,  // RX_PROTOCOL_FRSKY_D16,
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
     225, // RX_PROTOCOL_FRSKY_REDPINE,
     0,   // RX_PROTOCOL_EXPRESS_LRS
 };
 
+<<<<<<< HEAD
+=======
+#ifdef RX_UNIFIED_SERIAL
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 static const uint16_t SERIAL_PROTO_MAP[] = {
     RX_PROTOCOL_INVALID, // RX_SERIAL_PROTOCOL_INVALID
     RX_PROTOCOL_DSM,     // RX_SERIAL_PROTOCOL_DSM
@@ -58,7 +76,11 @@ static const uint16_t SERIAL_PROTO_MAP[] = {
     RX_PROTOCOL_REDPINE, // RX_SERIAL_PROTOCOL_REDPINE_INVERTED
 };
 
+<<<<<<< HEAD
 uint16_t rx_serial_smoothing_cutoff() {
+=======
+uint16_t rx_smoothing_cutoff() {
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
   const uint16_t serial_proto = SERIAL_PROTO_MAP[bind_storage.unified.protocol];
   if (serial_proto == RX_PROTOCOL_CRSF) {
     return rx_serial_crsf_smoothing_cutoff();
@@ -68,6 +90,7 @@ uint16_t rx_serial_smoothing_cutoff() {
   }
   return RX_SMOOTHING_HZ[serial_proto];
 }
+<<<<<<< HEAD
 
 float rx_smoothing_hz() {
   switch (profile.receiver.protocol) {
@@ -83,11 +106,30 @@ float rx_smoothing_hz() {
     return RX_SMOOTHING_HZ[profile.receiver.protocol];
   }
 }
+=======
+#else
+__weak uint16_t rx_smoothing_cutoff() {
+  // default implementation, will be overwritten by non __weak functions
+  return 0;
+}
+#endif
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 
 uint8_t rx_aux_on(aux_function_t function) {
   return state.aux[profile.receiver.aux[function]];
 }
 
+<<<<<<< HEAD
+=======
+float rx_smoothing_hz(rx_protocol_t proto) {
+  uint16_t cutoff = RX_SMOOTHING_HZ[proto];
+  if (cutoff == 0) {
+    cutoff = rx_smoothing_cutoff();
+  }
+  return cutoff;
+}
+
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 void rx_lqi_lost_packet() {
   frames_missed++;
 
@@ -139,7 +181,11 @@ void rx_lqi_update_direct(float rssi) {
 }
 
 static void rx_apply_smoothing() {
+<<<<<<< HEAD
   filter_lp_pt1_coeff(&rx_filter, rx_smoothing_hz());
+=======
+  filter_lp_pt1_coeff(&rx_filter, rx_smoothing_hz(RX_PROTOCOL));
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 
   for (int i = 0; i < 4; ++i) {
     if (i == 3) {
@@ -179,6 +225,7 @@ static float rx_apply_deadband(float val) {
 }
 
 void rx_init() {
+<<<<<<< HEAD
   filter_lp_pt1_init(&rx_filter, rx_filter_state, 4, rx_smoothing_hz());
 
   switch (profile.receiver.protocol) {
@@ -295,11 +342,20 @@ bool rx_check() {
   }
 
   return false;
+=======
+  filter_lp_pt1_init(&rx_filter, rx_filter_state, 4, rx_smoothing_hz(RX_PROTOCOL));
+
+  rx_protocol_init();
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 }
 
 void rx_update() {
   if (rx_check()) {
+<<<<<<< HEAD
     rx_apply_stick_scale();
+=======
+    rx_apply_stick_calibration_scale();
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 
     state.rx.roll = rx_apply_deadband(state.rx.roll);
     state.rx.pitch = rx_apply_deadband(state.rx.pitch);
@@ -308,3 +364,153 @@ void rx_update() {
 
   rx_apply_smoothing();
 }
+<<<<<<< HEAD
+=======
+
+void rx_capture_stick_range() {
+  for (uint8_t i = 0; i < 4; i++) {
+    if (state.rx.axis[i] > profile.receiver.stick_calibration_limits[i].max)
+      profile.receiver.stick_calibration_limits[i].max = state.rx.axis[i]; // record max value during calibration to array
+    if (state.rx.axis[i] < profile.receiver.stick_calibration_limits[i].min)
+      profile.receiver.stick_calibration_limits[i].min = state.rx.axis[i]; // record min value during calibration to array
+  }
+}
+
+void rx_reset_stick_calibration_scale() {
+  for (uint8_t i = 0; i < 3; i++) {
+    profile.receiver.stick_calibration_limits[i].min = -1;
+    profile.receiver.stick_calibration_limits[i].max = 1;
+  }
+  profile.receiver.stick_calibration_limits[3].max = 1;
+  profile.receiver.stick_calibration_limits[3].min = 0;
+}
+
+void rx_apply_temp_calibration_scale() {
+  for (uint8_t i = 0; i < 3; i++) {
+    profile.receiver.stick_calibration_limits[i].min = 1;
+    profile.receiver.stick_calibration_limits[i].max = -1;
+  }
+  profile.receiver.stick_calibration_limits[3].max = 0;
+  profile.receiver.stick_calibration_limits[3].min = 1;
+}
+
+static float stick_calibration_test_buffer[4][2] = {{-1, 1}, {-1, 1}, {-1, 1}, {0, 1}}; //{max, min}
+void reset_stick_calibration_test_buffer() {
+  for (uint8_t i = 0; i < 3; i++) {
+    stick_calibration_test_buffer[i][0] = -1;
+    stick_calibration_test_buffer[i][1] = 1;
+  }
+  stick_calibration_test_buffer[3][0] = 0;
+  stick_calibration_test_buffer[3][1] = 1;
+}
+
+uint8_t check_for_perfect_sticks() {
+  // first scale the sticks
+  state.rx.axis[0] = mapf(state.rx.axis[0], profile.receiver.stick_calibration_limits[0].min, profile.receiver.stick_calibration_limits[0].max, -1.f, 1.f);
+  state.rx.axis[1] = mapf(state.rx.axis[1], profile.receiver.stick_calibration_limits[1].min, profile.receiver.stick_calibration_limits[1].max, -1.f, 1.f);
+  state.rx.axis[2] = mapf(state.rx.axis[2], profile.receiver.stick_calibration_limits[2].min, profile.receiver.stick_calibration_limits[2].max, -1.f, 1.f);
+  state.rx.axis[3] = mapf(state.rx.axis[3], profile.receiver.stick_calibration_limits[3].min, profile.receiver.stick_calibration_limits[3].max, 0.f, 1.f);
+  // listen for the max stick values and update buffer
+  for (uint8_t i = 0; i < 4; i++) {
+    if (state.rx.axis[i] > stick_calibration_test_buffer[i][0])
+      stick_calibration_test_buffer[i][0] = state.rx.axis[i]; // record max value during calibration to array
+    if (state.rx.axis[i] < stick_calibration_test_buffer[i][1])
+      stick_calibration_test_buffer[i][1] = state.rx.axis[i]; // record min value during calibration to array
+  }
+  // test the "4 corners key"
+  uint8_t sum = 0;
+  for (uint8_t i = 0; i < 4; i++) {
+    if (stick_calibration_test_buffer[i][0] > 0.98f && stick_calibration_test_buffer[i][0] < 1.02f)
+      sum += 1; // test the max
+    if (stick_calibration_test_buffer[i][1] < -0.98f && stick_calibration_test_buffer[i][1] > -1.02f)
+      sum += 1; // test the min - throttle should fail
+  }
+  if (stick_calibration_test_buffer[3][1] < .01 && stick_calibration_test_buffer[3][1] > -.01)
+    sum += 1; // yes we tested throttle low twice because it doesnt go negative
+  if (sum == 8)
+    return 1;
+  // else
+  return 0;
+}
+
+void rx_stick_calibration_wizard() {
+  extern int ledcommand;
+  static uint8_t sequence_is_running = 0;
+  static uint32_t first_timestamp;
+  // get a timestamp and set the initial conditions
+  if (!sequence_is_running) {              // calibration has just been called
+    first_timestamp = time_micros();       // so we flag the time
+    flags.gestures_disabled = 1;           // and disable gestures
+    sequence_is_running = 1;               // just once
+    rx_apply_temp_calibration_scale();     // and shove temp values into profile that are the inverse of expected values from sticks
+    reset_stick_calibration_test_buffer(); // make sure we test with a fresh comparison buffer
+  }
+  // sequence the phase of the wizard in automatic 5 second intervals
+  if (state.stick_calibration_wizard == CALIBRATION_CONFIRMED) {
+    // leave it alone
+  } else {
+    uint32_t time_now = time_micros();
+    if ((time_now - first_timestamp > 5e6) && (time_now - first_timestamp < 10e6))
+      state.stick_calibration_wizard = WAIT_FOR_CONFIRM;
+    if (time_now - first_timestamp > 10e6)
+      state.stick_calibration_wizard = TIMEOUT;
+  }
+  // take appropriate action based on the wizard phase
+  switch (state.stick_calibration_wizard) {
+  case INACTIVE:
+    // how the fuck did we get here?
+    break;
+  case CAPTURE_STICKS:
+    rx_capture_stick_range();
+    break;
+  case WAIT_FOR_CONFIRM:
+    if (check_for_perfect_sticks()) {
+      state.stick_calibration_wizard = CALIBRATION_CONFIRMED;
+    }
+    break;
+  case CALIBRATION_CONFIRMED:
+    ledcommand = 1;
+    flash_save();
+    flash_load();
+    reset_looptime();
+    sequence_is_running = 0;
+    flags.gestures_disabled = 0;
+    state.stick_calibration_wizard = CALIBRATION_SUCCESS;
+    break;
+  case TIMEOUT:
+    rx_reset_stick_calibration_scale();
+    sequence_is_running = 0;
+    flags.gestures_disabled = 0;
+    state.stick_calibration_wizard = CALIBRATION_FAILED;
+    break;
+  case CALIBRATION_SUCCESS:
+    // or here?
+    break;
+  case CALIBRATION_FAILED:
+    // here too
+    break;
+  }
+}
+
+void rx_apply_stick_calibration_scale() {
+  if (state.stick_calibration_wizard == CAPTURE_STICKS || state.stick_calibration_wizard == WAIT_FOR_CONFIRM || state.stick_calibration_wizard == CALIBRATION_CONFIRMED || state.stick_calibration_wizard == TIMEOUT) {
+    rx_stick_calibration_wizard();
+  } else {
+    state.rx.axis[0] = mapf(state.rx.axis[0], profile.receiver.stick_calibration_limits[0].min, profile.receiver.stick_calibration_limits[0].max, -1.f, 1.f);
+    state.rx.axis[1] = mapf(state.rx.axis[1], profile.receiver.stick_calibration_limits[1].min, profile.receiver.stick_calibration_limits[1].max, -1.f, 1.f);
+    state.rx.axis[2] = mapf(state.rx.axis[2], profile.receiver.stick_calibration_limits[2].min, profile.receiver.stick_calibration_limits[2].max, -1.f, 1.f);
+    state.rx.axis[3] = mapf(state.rx.axis[3], profile.receiver.stick_calibration_limits[3].min, profile.receiver.stick_calibration_limits[3].max, 0.f, 1.f);
+  }
+}
+
+void request_stick_calibration_wizard() {
+  state.stick_calibration_wizard = CAPTURE_STICKS;
+}
+
+/*stick calibration wizard sequence notes
+1. user selects start stick calibration sequence
+2. From time 0s to time 5s - user is instructed to move sticks to all extents
+3. From time 5s to time 10s - user is instructed to move sticks to all extents again so that they can be tested
+4. If sticks test +/- 1% perfect - calibration passes and profile with scaling data saves.  wizard_phase enum will hold results that indicate CALIBRATION_CONFIRMED or TIMEOUT after the sequence.
+*/
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)

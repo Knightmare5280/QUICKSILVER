@@ -2,10 +2,19 @@
 
 #include "drv_motor.h"
 #include "flight/control.h"
-#include "io/usb_configurator.h"
 #include "profile.h"
 #include "project.h"
+#include "usb_configurator.h"
 #include "util/util.h"
+
+#ifdef MOTORS_TO_THROTTLE
+#warning "MOTORS TEST MODE"
+#endif
+
+#ifdef NOMOTORS
+#warning "NO MOTORS"
+float tempx[4];
+#endif
 
 #ifdef BRUSHED_TARGET
 #define BRUSHED_MIX_SCALING
@@ -56,6 +65,7 @@
 #endif
 
 extern profile_t profile;
+extern usb_motor_test_t usb_motor_test;
 
 static float motord(float in, int x) {
   float factor = profile.motor.torque_boost;
@@ -75,46 +85,54 @@ static float motord(float in, int x) {
 static void motor_mixer_scale_calc(float mix[4]) {
 
 #ifdef BRUSHLESS_MIX_SCALING
+  uint8_t mix_scaling = 0;
+
   // only enable once really in the air
-  if (flags.on_ground || !flags.in_air) {
-    return;
-  }
-
-  float mix_min = 1000.0f;
-  float mix_max = -1000.0f;
-
-  for (int i = 0; i < 4; i++) {
-    if (mix[i] < mix_min)
-      mix_min = mix[i];
-    if (mix[i] > mix_max)
-      mix_max = mix[i];
-
-    if (mix_min < (-AIRMODE_STRENGTH))
-      mix_min = (-AIRMODE_STRENGTH);
-    if (mix_max > (1 + CLIPPING_LIMIT))
-      mix_max = (1 + CLIPPING_LIMIT);
-  }
-
-  float reduce_amount = 0.0f;
-
-  const float mix_range = mix_max - mix_min;
-  if (mix_range > 1.0f) {
-    const float scale = 1.0f / mix_range;
-
-    for (int i = 0; i < 4; i++)
-      mix[i] *= scale;
-
-    mix_min *= scale;
-    reduce_amount = mix_min;
+  if (flags.on_ground) {
+    mix_scaling = 0;
   } else {
-    if (mix_max > 1.0f)
-      reduce_amount = mix_max - 1.0f;
-    else if (mix_min < 0.0f)
-      reduce_amount = mix_min;
+    mix_scaling = flags.in_air;
   }
 
-  for (int i = 0; i < 4; i++)
-    mix[i] -= reduce_amount;
+  if (mix_scaling) {
+    float mix_min = 1000.0f;
+    float mix_max = -1000.0f;
+
+    for (int i = 0; i < 4; i++) {
+      if (mix[i] < mix_min)
+        mix_min = mix[i];
+      if (mix[i] > mix_max)
+        mix_max = mix[i];
+
+      if (mix_min < (-AIRMODE_STRENGTH))
+        mix_min = (-AIRMODE_STRENGTH);
+      if (mix_max > (1 + CLIPPING_LIMIT))
+        mix_max = (1 + CLIPPING_LIMIT);
+    }
+
+    float mix_range = mix_max - mix_min;
+    float reduce_amount = 0.0f;
+
+    if (mix_range > 1.0f) {
+      float scale = 1.0f / mix_range;
+
+      for (int i = 0; i < 4; i++)
+        mix[i] *= scale;
+
+      mix_min *= scale;
+      reduce_amount = mix_min;
+    } else {
+      if (mix_max > 1.0f)
+        reduce_amount = mix_max - 1.0f;
+      else if (mix_min < 0.0f)
+        reduce_amount = mix_min;
+    }
+
+    if (reduce_amount != 0.0f) {
+      for (int i = 0; i < 4; i++)
+        mix[i] -= reduce_amount;
+    }
+  }
 #endif
 
 #ifdef BRUSHED_MIX_SCALING
@@ -181,79 +199,83 @@ static void motor_mixer_scale_calc(float mix[4]) {
 #endif
 }
 
-void motor_test_calc(bool motortest_usb, float mix[4]) {
-  if (motortest_usb) {
-    // set mix according to values we got via usb
-    mix[MOTOR_FR] = motor_test.value[MOTOR_FR];
-    mix[MOTOR_FL] = motor_test.value[MOTOR_FL];
-    mix[MOTOR_BR] = motor_test.value[MOTOR_BR];
-    mix[MOTOR_BL] = motor_test.value[MOTOR_BL];
-  } else {
-    // set mix according to sticks
-    if (state.rx_filtered.roll < -0.5f || state.rx_filtered.pitch < -0.5f) {
-      mix[MOTOR_FR] = 0;
-    } else {
-      mix[MOTOR_FR] = state.throttle;
-    }
-
-    if (state.rx_filtered.roll > 0.5f || state.rx_filtered.pitch < -0.5f) {
-      mix[MOTOR_FL] = 0;
-    } else {
-      mix[MOTOR_FL] = state.throttle;
-    }
-
-    if (state.rx_filtered.roll < -0.5f || state.rx_filtered.pitch > 0.5f) {
-      mix[MOTOR_BR] = 0;
-    } else {
-      mix[MOTOR_BR] = state.throttle;
-    }
-
-    if (state.rx_filtered.roll > 0.5f || state.rx_filtered.pitch > 0.5f) {
-      mix[MOTOR_BL] = 0;
-    } else {
-      mix[MOTOR_BL] = state.throttle;
-    }
-  }
-}
-
 void motor_mixer_calc(float mix[4]) {
-  if (profile.motor.invert_yaw) {
-    state.pidoutput.yaw = -state.pidoutput.yaw;
+  if (flags.usb_active) { // necessary to check if usb is active first or the else statement hijacks the state of global flag from turtle & motortest
+    if (usb_motor_test.active) {
+      flags.motortest_override = 1;
+    } else {
+      flags.motortest_override = 0;
+    }
   }
-
-#ifndef MOTOR_PLUS_CONFIGURATION
-  // normal mode, we set mix according to pidoutput
-  mix[MOTOR_FR] = state.throttle - state.pidoutput.axis[ROLL] - state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // FR
-  mix[MOTOR_FL] = state.throttle + state.pidoutput.axis[ROLL] - state.pidoutput.axis[PITCH] - state.pidoutput.axis[YAW]; // FL
-  mix[MOTOR_BR] = state.throttle - state.pidoutput.axis[ROLL] + state.pidoutput.axis[PITCH] - state.pidoutput.axis[YAW]; // BR
-  mix[MOTOR_BL] = state.throttle + state.pidoutput.axis[ROLL] + state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // BL
-#else
-  // plus mode, we set mix according to pidoutput
-  mix[MOTOR_FR] = state.throttle - state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // FRONT
-  mix[MOTOR_FL] = state.throttle + state.pidoutput.axis[ROLL] - state.pidoutput.axis[YAW];  // LEFT
-  mix[MOTOR_BR] = state.throttle - state.pidoutput.axis[ROLL] - state.pidoutput.axis[YAW];  // RIGHT
-  mix[MOTOR_BL] = state.throttle + state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // BACK
+#if defined(MOTORS_TO_THROTTLE)
+  flags.motortest_override = 1;
 #endif
 
-  for (int i = 0; i <= 3; i++) {
+  if (rx_aux_on(AUX_MOTOR_TEST) || flags.motortest_override || flags.controls_override) {
+    // TODO: investigate how skipping all that code below affects looptime
+    if (usb_motor_test.active) {
+      // set mix according to values we got via usb
+      mix[MOTOR_FR] = usb_motor_test.value[MOTOR_FR];
+      mix[MOTOR_FL] = usb_motor_test.value[MOTOR_FL];
+      mix[MOTOR_BR] = usb_motor_test.value[MOTOR_BR];
+      mix[MOTOR_BL] = usb_motor_test.value[MOTOR_BL];
+    } else {
+      // motor test mode, we set mix according to sticks
+      if (state.rx_filtered.roll < -0.5f || state.rx_filtered.pitch < -0.5f) {
+        mix[MOTOR_FR] = 0;
+      } else {
+        mix[MOTOR_FR] = state.throttle;
+      }
+
+      if (state.rx_filtered.roll > 0.5f || state.rx_filtered.pitch < -0.5f) {
+        mix[MOTOR_FL] = 0;
+      } else {
+        mix[MOTOR_FL] = state.throttle;
+      }
+
+      if (state.rx_filtered.roll < -0.5f || state.rx_filtered.pitch > 0.5f) {
+        mix[MOTOR_BR] = 0;
+      } else {
+        mix[MOTOR_BR] = state.throttle;
+      }
+
+      if (state.rx_filtered.roll > 0.5f || state.rx_filtered.pitch > 0.5f) {
+        mix[MOTOR_BL] = 0;
+      } else {
+        mix[MOTOR_BL] = state.throttle;
+      }
+    }
+
+  } else {
+#ifndef MOTOR_PLUS_CONFIGURATION
+    // normal mode, we set mix according to pidoutput
+    mix[MOTOR_FR] = state.throttle - state.pidoutput.axis[ROLL] - state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // FR
+    mix[MOTOR_FL] = state.throttle + state.pidoutput.axis[ROLL] - state.pidoutput.axis[PITCH] - state.pidoutput.axis[YAW]; // FL
+    mix[MOTOR_BR] = state.throttle - state.pidoutput.axis[ROLL] + state.pidoutput.axis[PITCH] - state.pidoutput.axis[YAW]; // BR
+    mix[MOTOR_BL] = state.throttle + state.pidoutput.axis[ROLL] + state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // BL
+#else
+    // plus mode, we set mix according to pidoutput
+    mix[MOTOR_FR] = state.throttle - state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // FRONT
+    mix[MOTOR_FL] = state.throttle + state.pidoutput.axis[ROLL] - state.pidoutput.axis[YAW];  // LEFT
+    mix[MOTOR_BR] = state.throttle - state.pidoutput.axis[ROLL] - state.pidoutput.axis[YAW];  // RIGHT
+    mix[MOTOR_BL] = state.throttle + state.pidoutput.axis[PITCH] + state.pidoutput.axis[YAW]; // BACK
+#endif
+
+    for (int i = 0; i <= 3; i++) {
 #ifdef MOTOR_FILTER2_ALPHA
-    mix[i] = motorlpf(mix[i], i);
+      mix[i] = motorlpf(mix[i], i);
 #endif
 
 #ifdef MOTOR_KAL
-    mix[i] = motor_kalman(mix[i], i);
+      mix[i] = motor_kalman(mix[i], i);
 #endif
 
-    if (profile.motor.torque_boost > 0.0f) {
-      mix[i] = motord(mix[i], i);
+      if (profile.motor.torque_boost > 0.0f) {
+        mix[i] = motord(mix[i], i);
+      }
     }
-  }
 
-  motor_mixer_scale_calc(mix);
-
-  // we invert again cause it's used by the pid internally (for limit)
-  if (profile.motor.invert_yaw) {
-    state.pidoutput.yaw = -state.pidoutput.yaw;
+    motor_mixer_scale_calc(mix);
   }
 }
 
@@ -264,21 +286,28 @@ void motor_output_calc(float mix[4]) {
   // Begin for-loop to send motor commands
   for (int i = 0; i <= 3; i++) {
 
-    mix[i] = constrainf(mix[i], 0, 1);
-
-    // only apply digital idle if we are armed and not in motor test
-    float motor_min_value = 0;
-    if (!flags.on_ground && flags.arm_state && !flags.motortest_override) {
-      // 0.0001 for legacy purposes, motor drivers downstream to round up
-      motor_min_value = 0.0001f + (float)profile.motor.digital_idle * 0.01f;
+#if defined(BRUSHED_TARGET)
+    if (profile.motor.digital_idle && !(rx_aux_on(AUX_MOTOR_TEST) || flags.motortest_override)) {
+      float motor_min_value = (float)profile.motor.digital_idle * 0.01f;
+      // Clip all mixer values into 0 to 1 range before remapping
+      mix[i] = constrainf(mix[i], 0, 1);
+      mix[i] = motor_min_value + mix[i] * (1.0f - motor_min_value);
     }
-
-    mix[i] = mapf(mix[i], 0.0f, 1.0f, motor_min_value, profile.motor.motor_limit * 0.01f);
+#else
+    // brushless: do nothing - idle set by DSHOT
+#endif
 
 #ifndef NOMOTORS
     // normal mode
     motor_set(i, mix[i]);
+#else
+    // no motors mode
+    // to maintain timing or it will be optimized away
+    tempx[i] = motormap(mix[i]);
 #endif
+
+    // clip mixer outputs (if not already done) before applying calculating throttle sum
+    mix[i] = constrainf(mix[i], 0, 1);
     state.thrsum += mix[i];
   }
 

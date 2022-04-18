@@ -8,7 +8,7 @@
 #include "drv_time.h"
 #include "flash.h"
 #include "flight/control.h"
-#include "io/led.h"
+#include "io/io/led.h"
 #include "io/usb_configurator.h"
 #include "profile.h"
 #include "project.h"
@@ -87,15 +87,10 @@ void rx_serial_isr() {
     if (rx_frame_position >= expected_frame_length && frame_status == FRAME_IDLE) {
       frame_status = FRAME_RX;
     }
-  }
 
-  if (LL_USART_IsEnabledIT_TC(USART.channel) && LL_USART_IsActiveFlag_TC(USART.channel)) {
-    LL_USART_ClearFlag_TC(USART.channel);
-    if (telemetry_offset == telemetry_size && !telemetry_done) {
-      telemetry_done = true;
-      LL_USART_DisableIT_TC(USART.channel);
-    }
+    rx_frame_position %= (RX_BUFF_SIZE);
   }
+}
 
   if (LL_USART_IsEnabledIT_TXE(USART.channel) && LL_USART_IsActiveFlag_TXE(USART.channel)) {
     if (telemetry_offset < telemetry_size) {

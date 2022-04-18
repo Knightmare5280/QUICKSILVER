@@ -15,6 +15,11 @@
 #include "stdio.h"
 #include "string.h"
 #include "util/util.h"
+<<<<<<< HEAD
+=======
+
+#ifdef ENABLE_OSD
+>>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 
 typedef enum {
   CLEAR,
