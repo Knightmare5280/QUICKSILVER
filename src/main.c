@@ -150,9 +150,12 @@ __attribute__((__used__)) int main() {
   gpio_init();
   debug_pin_init();
   buzzer_init();
+  led_init();
 
   usb_init();
-  ledon(255); // Turn on LED during boot so that if a delay is used as part of using programming pins for other functions, the FC does not appear inactive while programming times out
+
+  led_on(255); // Turn on LED during boot so that if a delay is used as part of using programming pins for other functions, the FC does not appear inactive while programming times out
+
   spi_init();
 
   rx_spektrum_bind();
