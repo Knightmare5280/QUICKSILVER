@@ -129,6 +129,49 @@ void looptime_update() {
   }
 }
 
+void looptime_update() {
+  // looptime_autodetect sequence
+  static uint8_t loop_delay = 0;
+  if (loop_delay < 200) {
+    loop_delay++;
+  }
+
+  static float loop_avg = 0;
+  static uint8_t loop_counter = 0;
+
+  if (loop_delay >= 200 && loop_counter < 200) {
+    loop_avg += state.looptime_us;
+    loop_counter++;
+  }
+
+  if (loop_counter == 200) {
+    loop_avg /= 200;
+
+    if (loop_avg < 130.f) {
+      state.looptime_autodetect = LOOPTIME_8K;
+    } else if (loop_avg < 255.f) {
+      state.looptime_autodetect = LOOPTIME_4K;
+    } else {
+      state.looptime_autodetect = LOOPTIME_2K;
+    }
+
+    loop_counter++;
+  }
+
+  if (loop_counter == 201) {
+    if (state.cpu_load > state.looptime_autodetect + 5) {
+      blown_loop_counter++;
+    }
+
+    if (blown_loop_counter > 100) {
+      blown_loop_counter = 0;
+      loop_counter = 0;
+      loop_avg = 0;
+      looptime_warning++;
+    }
+  }
+}
+
 __attribute__((__used__)) int main() {
   // init some initial values
   // attempt 8k looptime for f405 or 4k looptime for f411
@@ -224,6 +267,7 @@ __attribute__((__used__)) int main() {
   while (1) {
     perf_counter_start(PERF_COUNTER_TOTAL);
 
+<<<<<<< HEAD
     uint32_t time = time_micros();
     state.looptime_us_us = ((uint32_t)(time - lastlooptime));
     lastlooptime = time;
@@ -241,15 +285,29 @@ __attribute__((__used__)) int main() {
     // max loop 20ms
     if (state.looptime > 0.02f) {
       failloop(FAILLOOP_LOOPTIME);
+=======
+    perf_counter_start(PERF_COUNTER_TOTAL);
+
+    uint32_t time = time_micros();
+    state.looptime_us = ((uint32_t)(time - lastlooptime));
+    lastlooptime = time;
+
+    if (state.looptime_us <= 0) {
+      state.looptime_us = 1;
     }
 
     looptime_update();
 
     state.looptime = state.looptime_us * 1e-6f;
 
+    looptime_update();
+
+    state.looptime = state.looptime_us * 1e-6f;
+
     state.uptime += state.looptime;
-    if (flags.arm_state) {
+    if (flags.arm_state) { {
       state.armtime += state.looptime;
+    }
     }
 
     if (liberror > 20) {
