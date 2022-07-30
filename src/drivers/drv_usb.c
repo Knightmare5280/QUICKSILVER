@@ -255,6 +255,8 @@ static void cdc_rxonly(usbd_device *dev, uint8_t event, uint8_t ep) {
 }
 
 static void cdc_txonly(usbd_device *dev, uint8_t event, uint8_t ep) {
+  usb_device_configured = true;
+
   if (tx_buffer_in_use) {
     usbd_ep_write(dev, ep, 0, 0);
     return;
@@ -294,9 +296,6 @@ static usbd_respond cdc_setconf(usbd_device *dev, uint8_t cfg) {
     usbd_reg_endpoint(dev, CDC_RXD_EP, cdc_rxonly);
     usbd_reg_endpoint(dev, CDC_TXD_EP, cdc_txonly);
     usbd_ep_write(dev, CDC_TXD_EP, 0, 0);
-
-    usb_device_configured = true;
-
     return usbd_ack;
 
   default:
