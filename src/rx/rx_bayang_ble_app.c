@@ -22,6 +22,8 @@
 #include "project.h"
 #include "util/util.h"
 
+#ifdef RX_BAYANG_BLE_APP
+
 #define RX_MODE_BIND RXMODE_BIND
 #define RX_MODE_NORMAL RXMODE_NORMAL
 
@@ -129,8 +131,6 @@
 int current_PID_for_display = 0;
 int PID_index_delay = 0;
 
-#ifdef RX_BAYANG_BLE_APP
-
 char lasttrim[4];
 
 char rfchannel[4];
@@ -141,7 +141,7 @@ int bind_safety = 0;
 uint32_t total_time_in_air = 0;
 uint32_t time_throttle_on = 0;
 int bound_for_BLE_packet;
-extern int random_seed;
+int random_seed;
 
 void bleinit();
 
@@ -157,6 +157,10 @@ void writeregs(uint8_t data[], uint8_t size) {
 char quad_name[6] = {'N', 'O', 'N', 'A', 'M', 'E'};
 
 void rx_protocol_init() {
+
+  // for randomising MAC adddress of ble app - this will make the int = raw float value
+  random_seed = *(int *)&state.vbat_filtered;
+  random_seed = random_seed & 0xff;
 
   // always on (AUX_CHANNEL_ON) channel set 1
   state.aux[AUX_CHANNEL_MAX - 2] = 1;

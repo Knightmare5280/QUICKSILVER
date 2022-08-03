@@ -45,8 +45,6 @@ uint32_t lastlooptime;
 uint8_t looptime_warning;
 uint8_t blown_loop_counter;
 
-int random_seed = 0;
-
 __attribute__((__used__)) void memory_section_init() {
 #ifdef USE_FAST_RAM
   extern uint8_t _fast_ram_start;
@@ -176,24 +174,11 @@ __attribute__((__used__)) int main() {
 
   adc_init();
 
-  // set always on channel to on
-  state.aux[AUX_CHANNEL_ON] = 1;
-  state.aux[AUX_CHANNEL_OFF] = 0;
-#ifdef GESTURE_AUX_START_ON
-  state.aux[AUX_CHANNEL_GESTURE] = 1;
-#endif
-
   vtx_init();
   rx_init();
 
   time_delay_us(1000);
   vbat_init();
-
-#ifdef RX_BAYANG_BLE_APP
-  // for randomising MAC adddress of ble app - this will make the int = raw float value
-  random_seed = *(int *)&state.vbat_filtered;
-  random_seed = random_seed & 0xff;
-#endif
 
   sixaxis_gyro_cal();
   rgb_init();
@@ -208,12 +193,6 @@ __attribute__((__used__)) int main() {
   perf_counter_init();
 
   lastlooptime = time_micros();
-
-  //
-  //
-  //    MAIN LOOP
-  //
-  //
 
   while (1) {
     perf_counter_start(PERF_COUNTER_TOTAL);

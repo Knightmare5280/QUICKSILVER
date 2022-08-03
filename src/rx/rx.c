@@ -181,6 +181,13 @@ static float rx_apply_deadband(float val) {
 void rx_init() {
   filter_lp_pt1_init(&rx_filter, rx_filter_state, 4, rx_smoothing_hz());
 
+  // set always on channel to on
+  state.aux[AUX_CHANNEL_ON] = 1;
+  state.aux[AUX_CHANNEL_OFF] = 0;
+#ifdef GESTURE_AUX_START_ON
+  state.aux[AUX_CHANNEL_GESTURE] = 1;
+#endif
+
   switch (profile.receiver.protocol) {
   case RX_PROTOCOL_INVALID:
   case RX_PROTOCOL_MAX:
