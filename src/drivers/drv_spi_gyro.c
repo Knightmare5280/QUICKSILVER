@@ -10,18 +10,6 @@
 
 gyro_types_t gyro_type = GYRO_TYPE_INVALID;
 
-<<<<<<< HEAD
-static DMA_RAM uint8_t buffer[512];
-spi_bus_device_t gyro_bus = {
-    .port = GYRO_SPI_PORT,
-    .nss = GYRO_NSS,
-
-    .buffer = buffer,
-    .buffer_size = 512,
-};
-
-=======
->>>>>>> 53276eff (auto detect gyro type)
 static gyro_types_t gyro_spi_detect() {
   gyro_types_t type = GYRO_TYPE_INVALID;
 
@@ -68,21 +56,6 @@ static gyro_types_t gyro_spi_detect() {
 }
 
 uint8_t gyro_spi_init() {
-<<<<<<< HEAD
-#ifdef GYRO_INT
-  // Interrupt GPIO
-  LL_GPIO_InitTypeDef gpio_init;
-  gpio_init.Mode = LL_GPIO_MODE_INPUT;
-  gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpio_init.Pull = LL_GPIO_PULL_UP;
-  gpio_init.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpio_pin_init(&gpio_init, GYRO_INT);
-#endif
-
-  spi_bus_device_init(&gyro_bus);
-
-=======
->>>>>>> 53276eff (auto detect gyro type)
   gyro_type = gyro_spi_detect();
 
   switch (gyro_type) {

@@ -8,14 +8,7 @@
 
 #define BMI270_ID 0x24
 
-<<<<<<< HEAD
-#define SPI_SPEED_SLOW MHZ_TO_HZ(0.5)
-#define SPI_SPEED_FAST MHZ_TO_HZ(10.5)
-
-extern spi_bus_device_t gyro_bus;
-=======
 #define PORT spi_port_defs[GYRO_SPI_PORT]
->>>>>>> 53276eff (auto detect gyro type)
 
 const uint8_t bmi270_maximum_fifo_config_file[] = {
     0xc8, 0x2e, 0x00, 0x2e, 0x80, 0x2e, 0x1a, 0x00, 0xc8, 0x2e, 0x00, 0x2e, 0xc8, 0x2e, 0x00, 0x2e, 0xc8, 0x2e, 0x00,
