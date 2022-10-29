@@ -36,9 +36,6 @@ static const uint16_t RX_SMOOTHING_HZ[RX_PROTOCOL_MAX] = {
     67,  // RX_PROTOCOL_CRSF,
     50,  // RX_PROTOCOL_IBUS, check these
     50,  // RX_PROTOCOL_FPORT, check these
-<<<<<<< HEAD
-    0,   // RX_PROTOCOL_DSM,
-=======
     40,  // RX_PROTOCOL_DSM,
 >>>>>>> 3d7ef130 (add io folder, eliminate main folder)
     90,  // RX_PROTOCOL_NRF24_BAYANG_TELEMETRY,
@@ -48,17 +45,10 @@ static const uint16_t RX_SMOOTHING_HZ[RX_PROTOCOL_MAX] = {
 <<<<<<< HEAD
     50,  // RX_PROTOCOL_FRSKY_D16_FCC,
     50,  // RX_PROTOCOL_FRSKY_D16_LBT,
-=======
-    50,  // RX_PROTOCOL_FRSKY_D16,
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
     225, // RX_PROTOCOL_FRSKY_REDPINE,
     0,   // RX_PROTOCOL_EXPRESS_LRS
 };
 
-<<<<<<< HEAD
-=======
-#ifdef RX_UNIFIED_SERIAL
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 static const uint16_t SERIAL_PROTO_MAP[] = {
     RX_PROTOCOL_INVALID, // RX_SERIAL_PROTOCOL_INVALID
     RX_PROTOCOL_DSM,     // RX_SERIAL_PROTOCOL_DSM
@@ -73,11 +63,7 @@ static const uint16_t SERIAL_PROTO_MAP[] = {
     RX_PROTOCOL_REDPINE, // RX_SERIAL_PROTOCOL_REDPINE_INVERTED
 };
 
-<<<<<<< HEAD
 uint16_t rx_serial_smoothing_cutoff() {
-=======
-uint16_t rx_smoothing_cutoff() {
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
   const uint16_t serial_proto = SERIAL_PROTO_MAP[bind_storage.unified.protocol];
   if (serial_proto == RX_PROTOCOL_CRSF) {
     return rx_serial_crsf_smoothing_cutoff();
@@ -87,7 +73,6 @@ uint16_t rx_smoothing_cutoff() {
   }
   return RX_SMOOTHING_HZ[serial_proto];
 }
-<<<<<<< HEAD
 
 float rx_smoothing_hz() {
   switch (profile.receiver.protocol) {
@@ -103,30 +88,17 @@ float rx_smoothing_hz() {
     return RX_SMOOTHING_HZ[profile.receiver.protocol];
   }
 }
-=======
 #else
 __weak uint16_t rx_smoothing_cutoff() {
   // default implementation, will be overwritten by non __weak functions
   return 0;
 }
 #endif
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 
 uint8_t rx_aux_on(aux_function_t function) {
   return state.aux[profile.receiver.aux[function]];
 }
 
-<<<<<<< HEAD
-=======
-float rx_smoothing_hz(rx_protocol_t proto) {
-  uint16_t cutoff = RX_SMOOTHING_HZ[proto];
-  if (cutoff == 0) {
-    cutoff = rx_smoothing_cutoff();
-  }
-  return cutoff;
-}
-
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 void rx_lqi_lost_packet() {
   frames_missed++;
 
@@ -178,11 +150,7 @@ void rx_lqi_update_direct(float rssi) {
 }
 
 static void rx_apply_smoothing() {
-<<<<<<< HEAD
   filter_lp_pt1_coeff(&rx_filter, rx_smoothing_hz());
-=======
-  filter_lp_pt1_coeff(&rx_filter, rx_smoothing_hz(RX_PROTOCOL));
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 
   for (int i = 0; i < 4; ++i) {
     if (i == 3) {
@@ -222,7 +190,6 @@ static float rx_apply_deadband(float val) {
 }
 
 void rx_init() {
-<<<<<<< HEAD
   filter_lp_pt1_init(&rx_filter, rx_filter_state, 4, rx_smoothing_hz());
 
   switch (profile.receiver.protocol) {
@@ -339,20 +306,12 @@ bool rx_check() {
   }
 
   return false;
-=======
-  filter_lp_pt1_init(&rx_filter, rx_filter_state, 4, rx_smoothing_hz(RX_PROTOCOL));
-
-  rx_protocol_init();
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 }
 
 void rx_update() {
   if (rx_check()) {
-<<<<<<< HEAD
     rx_apply_stick_scale();
-=======
     rx_apply_stick_calibration_scale();
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 
     state.rx.roll = rx_apply_deadband(state.rx.roll);
     state.rx.pitch = rx_apply_deadband(state.rx.pitch);
@@ -361,8 +320,6 @@ void rx_update() {
 
   rx_apply_smoothing();
 }
-<<<<<<< HEAD
-=======
 
 void rx_capture_stick_range() {
   for (uint8_t i = 0; i < 4; i++) {
@@ -510,4 +467,3 @@ void request_stick_calibration_wizard() {
 3. From time 5s to time 10s - user is instructed to move sticks to all extents again so that they can be tested
 4. If sticks test +/- 1% perfect - calibration passes and profile with scaling data saves.  wizard_phase enum will hold results that indicate CALIBRATION_CONFIRMED or TIMEOUT after the sequence.
 */
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
