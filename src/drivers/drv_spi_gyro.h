@@ -15,10 +15,6 @@ typedef enum {
   GYRO_TYPE_ICM20689,
 
   GYRO_TYPE_ICM42605,
-<<<<<<< HEAD
-  GYRO_TYPE_ICM42688P,
-=======
->>>>>>> 53276eff (auto detect gyro type)
 
   GYRO_TYPE_BMI270,
 } gyro_types_t;
