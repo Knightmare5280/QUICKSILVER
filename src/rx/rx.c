@@ -11,12 +11,9 @@
 #include "project.h"
 #include "util/util.h"
 
-<<<<<<< HEAD
-=======
 extern void rx_protocol_init();
 extern bool rx_check();
 
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 extern profile_t profile;
 
 uint8_t failsafe_siglost = 0;

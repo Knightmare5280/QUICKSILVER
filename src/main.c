@@ -26,10 +26,7 @@
 #include "io/buzzer.h"
 #include "io/led.h"
 #include "io/rgb_led.h"
-<<<<<<< HEAD
 #include "io/usb_configurator.h"
-=======
->>>>>>> 3d7ef130 (add io folder, eliminate main folder)
 #include "io/vbat.h"
 #include "io/vtx.h"
 #include "osd_render.h"
