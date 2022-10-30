@@ -101,7 +101,7 @@ void bmi270_configure() {
 }
 
 uint8_t bmi270_read(uint8_t reg) {
-  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, SPI_SPEED_SLOW);
+  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, SPI_SPEED_LOW);
 
   uint8_t buffer[3] = {reg | 0x80, 0x0, 0x0};
 
