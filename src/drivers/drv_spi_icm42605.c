@@ -12,7 +12,6 @@
 =======
 
 #define PORT spi_port_defs[GYRO_SPI_PORT]
->>>>>>> 53276eff (auto detect gyro type)
 
 #define SPI_SPEED_SLOW MHZ_TO_HZ(0.5)
 #define SPI_SPEED_FAST MHZ_TO_HZ(24)

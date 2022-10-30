@@ -66,10 +66,6 @@ uint8_t gyro_spi_init() {
     break;
 
   case GYRO_TYPE_ICM42605:
-<<<<<<< HEAD
-  case GYRO_TYPE_ICM42688P:
-=======
->>>>>>> 53276eff (auto detect gyro type)
     icm42605_configure();
     break;
 
