@@ -2,8 +2,13 @@
 
 #include <string.h>
 
+<<<<<<< HEAD
 #include "drv_msp.h"
 #include "drv_serial.h"
+=======
+#include "drv_serial.h"
+#include "io/msp.h"
+>>>>>>> master
 #include "profile.h"
 #include "util/circular_buffer.h"
 
@@ -24,6 +29,7 @@ typedef enum {
   ATTR_BLINK = 0x80,
 } displayport_attr_t;
 
+<<<<<<< HEAD
 typedef struct {
   uint8_t dirty : 1;
   uint8_t attr : 3;
@@ -81,6 +87,31 @@ static bool hdzero_push_msp(const uint8_t code, const uint8_t *data, const uint8
 
   if (circular_buffer_free(&msp_tx_buffer) <= (size + 6)) {
     LL_USART_EnableIT_TXE(USART.channel);
+=======
+#define USART usart_port_defs[serial_hdzero_port]
+
+static volatile uint32_t last_heartbeat = 0;
+static bool is_detected = false;
+
+static uint8_t msp_tx_data[512];
+static circular_buffer_t msp_tx_buffer = {
+    .buffer = msp_tx_data,
+    .head = 0,
+    .tail = 0,
+    .size = 512,
+};
+
+static uint8_t msp_rx_data[256];
+static circular_buffer_t msp_rx_buffer = {
+    .buffer = msp_rx_data,
+    .head = 0,
+    .tail = 0,
+    .size = 256,
+};
+
+static bool hdzero_push_msp(const uint8_t code, const uint8_t *data, const uint8_t size) {
+  if (circular_buffer_free(&msp_tx_buffer) < (MSP_HEADER_LEN + size + 1)) {
+>>>>>>> master
     return false;
   }
 
@@ -99,6 +130,7 @@ static bool hdzero_push_msp(const uint8_t code, const uint8_t *data, const uint8
   circular_buffer_write(&msp_tx_buffer, chksum);
 
   LL_USART_EnableIT_TXE(USART.channel);
+<<<<<<< HEAD
 
   return true;
 }
@@ -108,6 +140,31 @@ static bool hdzero_push_subcmd(displayport_subcmd_t subcmd, const uint8_t *data,
 
   if (circular_buffer_free(&msp_tx_buffer) <= (size + 7)) {
     LL_USART_EnableIT_TXE(USART.channel);
+=======
+  return true;
+}
+
+static void hdzero_msp_send(msp_magic_t magic, uint8_t direction, uint16_t cmd, uint8_t *data, uint16_t len) {
+  if (cmd == MSP_FC_VARIANT) {
+    static uint8_t variant[6] = {'A', 'R', 'D', 'U', 0, 0};
+    data = variant;
+    len = 6;
+  }
+
+  hdzero_push_msp(cmd, data, len);
+}
+
+static uint8_t msp_buffer[128];
+static msp_t msp = {
+    .buffer = msp_buffer,
+    .buffer_size = 128,
+    .buffer_offset = 0,
+    .send = hdzero_msp_send,
+};
+
+static bool hdzero_push_subcmd(displayport_subcmd_t subcmd, const uint8_t *data, const uint8_t size) {
+  if (circular_buffer_free(&msp_tx_buffer) < (MSP_HEADER_LEN + size + 2)) {
+>>>>>>> master
     return false;
   }
 
@@ -127,6 +184,7 @@ static bool hdzero_push_subcmd(displayport_subcmd_t subcmd, const uint8_t *data,
   circular_buffer_write(&msp_tx_buffer, chksum);
 
   LL_USART_EnableIT_TXE(USART.channel);
+<<<<<<< HEAD
 
   return true;
 }
@@ -148,13 +206,34 @@ static bool hdzero_can_fit_string(uint8_t size) {
   LL_USART_EnableIT_TXE(USART.channel);
 
   return free > (size + 10);
+=======
+  return true;
+}
+
+static uint8_t hdzero_map_attr(uint8_t attr) {
+  uint8_t val = 0;
+  /*
+  if (attr & OSD_ATTR_INVERT) {
+    val |= ATTR_WARNING;
+  }
+
+  if (attr & OSD_ATTR_BLINK) {
+    val |= ATTR_BLINK;
+  }
+  */
+  return val;
+>>>>>>> master
 }
 
 void hdzero_init() {
   serial_hdzero_port = profile.serial.hdzero;
 
   serial_enable_rcc(serial_hdzero_port);
+<<<<<<< HEAD
   serial_init(serial_hdzero_port, 115200, false);
+=======
+  serial_init(NULL, serial_hdzero_port, 115200, 1, false);
+>>>>>>> master
   serial_enable_isr(serial_hdzero_port);
 
   LL_USART_EnableIT_RXNE(USART.channel);
@@ -168,15 +247,24 @@ void hdzero_intro() {
     }
   }
 
+<<<<<<< HEAD
   hdzero_push_write_string(OSD_ATTR_TEXT, COLS / 2 - 6, ROWS / 2 - 1, (uint8_t *)"QUICKSILVER", 12);
 }
 
 uint8_t hdzero_clear_async() {
   memset(display, 0, DISPLAY_SIZE * sizeof(displayport_char_t));
+=======
+  hdzero_push_string(OSD_ATTR_TEXT, HDZERO_COLS / 2 - 6, HDZERO_ROWS / 2 - 1, (uint8_t *)"QUICKSILVER", 12);
+  hdzero_push_subcmd(SUBCMD_DRAW_SCREEN, NULL, 0);
+}
+
+uint8_t hdzero_clear_async() {
+>>>>>>> master
   hdzero_push_subcmd(SUBCMD_CLEAR_SCREEN, NULL, 0);
   return 1;
 }
 
+<<<<<<< HEAD
 static bool hdzero_update_display() {
   static uint8_t row = 0;
 
@@ -245,6 +333,16 @@ bool hdzero_is_ready() {
   }
 
   static bool wants_heatbeat = true;
+=======
+bool hdzero_is_ready() {
+  static bool wants_heatbeat = true;
+
+  if ((time_millis() - last_heartbeat) > 500) {
+    wants_heatbeat = true;
+    return false;
+  }
+
+>>>>>>> master
   if (wants_heatbeat) {
     uint8_t variant[6] = {'A', 'R', 'D', 'U', 0, 0};
     hdzero_push_msp(MSP_FC_VARIANT, variant, 6);
@@ -252,12 +350,29 @@ bool hdzero_is_ready() {
     uint8_t options[2] = {0, 1};
     hdzero_push_subcmd(SUBCMD_SET_OPTIONS, options, 2);
 
+<<<<<<< HEAD
     memset(display, 0, DISPLAY_SIZE * sizeof(displayport_char_t));
     hdzero_push_subcmd(SUBCMD_CLEAR_SCREEN, NULL, 0);
 
     wants_heatbeat = false;
     return false;
   }
+=======
+    hdzero_clear_async();
+    wants_heatbeat = false;
+    return false;
+  }
+
+  while (true) {
+    uint8_t data = 0;
+    if (!circular_buffer_read(&msp_rx_buffer, &data)) {
+      break;
+    }
+
+    msp_process_serial(&msp, data);
+  }
+
+>>>>>>> master
   return true;
 }
 
@@ -272,6 +387,7 @@ osd_system_t hdzero_check_system() {
   return OSD_SYS_HD;
 }
 
+<<<<<<< HEAD
 void hdzero_txn_start(osd_transaction_t *txn, uint8_t attr, uint8_t x, uint8_t y) {
 }
 
@@ -310,6 +426,26 @@ void hdzero_txn_write_data(osd_transaction_t *txn, const uint8_t *buffer, uint8_
 }
 
 void hdzero_txn_submit(osd_transaction_t *txn) {
+=======
+bool hdzero_push_string(uint8_t attr, uint8_t x, uint8_t y, const uint8_t *data, uint8_t size) {
+  uint8_t buffer[size + 3];
+  buffer[0] = y;
+  buffer[1] = x;
+  buffer[2] = hdzero_map_attr(attr);
+
+  memcpy(buffer + 3, data, size);
+
+  return hdzero_push_subcmd(SUBCMD_WRITE_STRING, buffer, size + 3);
+}
+
+bool hdzero_can_fit(uint8_t size) {
+  const uint32_t free = circular_buffer_free(&msp_tx_buffer);
+  return free > (size + 10);
+}
+
+bool hdzero_flush() {
+  return hdzero_push_subcmd(SUBCMD_DRAW_SCREEN, NULL, 0);
+>>>>>>> master
 }
 
 void hdzero_uart_isr() {

@@ -7,7 +7,11 @@
 
 #if defined(USE_M25P16)
 
+<<<<<<< HEAD
 #define M25P16_BAUD_RATE spi_find_divder(MHZ_TO_HZ(21))
+=======
+#define M25P16_BAUD_RATE MHZ_TO_HZ(21)
+>>>>>>> master
 
 #define JEDEC_ID_MACRONIX_MX25L3206E 0xC22016
 #define JEDEC_ID_MACRONIX_MX25L6406E 0xC22017
@@ -24,8 +28,13 @@
 #define JEDEC_ID_CYPRESS_S25FL128L 0x016018
 #define JEDEC_ID_BERGMICRO_W25Q32 0xE04016
 
+<<<<<<< HEAD
 static volatile uint8_t buffer[512];
 static volatile spi_bus_device_t bus = {
+=======
+static DMA_RAM uint8_t buffer[512];
+static spi_bus_device_t bus = {
+>>>>>>> master
     .port = M25P16_SPI_PORT,
     .nss = M25P16_NSS_PIN,
 
@@ -45,6 +54,7 @@ uint8_t m25p16_is_ready() {
     return 0;
   }
 
+<<<<<<< HEAD
   spi_bus_device_reconfigure(&bus, SPI_MODE_LEADING_EDGE, M25P16_BAUD_RATE);
 
   uint8_t buffer[2] = {M25P16_READ_STATUS_REGISTER, 0xFF};
@@ -53,6 +63,14 @@ uint8_t m25p16_is_ready() {
   spi_txn_add_seg(txn, buffer, buffer, 2);
   spi_txn_submit(txn);
 
+=======
+  uint8_t buffer[2] = {M25P16_READ_STATUS_REGISTER, 0xFF};
+
+  spi_txn_t *txn = spi_txn_init(&bus, NULL);
+  spi_txn_add_seg(txn, buffer, buffer, 2);
+  spi_txn_submit(txn);
+
+>>>>>>> master
   spi_txn_wait(&bus);
 
   return (buffer[1] & 0x01) == 0;
@@ -115,6 +133,7 @@ uint8_t m25p16_read_addr(const uint8_t cmd, const uint32_t addr, uint8_t *data, 
 }
 
 uint8_t m25p16_page_program(const uint32_t addr, const uint8_t *buf, const uint32_t size) {
+<<<<<<< HEAD
   if (!spi_txn_ready(&bus) || !spi_dma_is_ready(M25P16_SPI_PORT)) {
     return 0;
   }
@@ -137,6 +156,24 @@ uint8_t m25p16_page_program(const uint32_t addr, const uint8_t *buf, const uint3
 
   spi_txn_continue(&bus);
 
+=======
+  {
+    spi_txn_t *txn = spi_txn_init(&bus, NULL);
+    spi_txn_add_seg_const(txn, M25P16_WRITE_ENABLE);
+    spi_txn_submit(txn);
+  }
+
+  {
+    spi_txn_t *txn = spi_txn_init(&bus, NULL);
+    spi_txn_add_seg_const(txn, M25P16_PAGE_PROGRAM);
+    m25p16_set_addr(txn, addr);
+    spi_txn_add_seg(txn, NULL, buf, size);
+    spi_txn_submit(txn);
+  }
+
+  spi_txn_continue(&bus);
+
+>>>>>>> master
   return 1;
 }
 

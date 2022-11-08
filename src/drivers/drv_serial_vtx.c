@@ -3,7 +3,7 @@
 #include "drv_serial.h"
 #include "drv_serial_soft.h"
 #include "drv_time.h"
-#include "usb_configurator.h"
+#include "io/usb_configurator.h"
 #include "util/circular_buffer.h"
 
 #if defined(ENABLE_SMART_AUDIO) || defined(ENABLE_TRAMP)
@@ -11,7 +11,7 @@
 #define USART usart_port_defs[serial_smart_audio_port]
 
 uint8_t vtx_rx_data[VTX_BUFFER_SIZE];
-volatile circular_buffer_t vtx_rx_buffer = {
+circular_buffer_t vtx_rx_buffer = {
     .buffer = vtx_rx_data,
     .head = 0,
     .tail = 0,

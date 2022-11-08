@@ -1,25 +1,32 @@
-![QUICKSILVER](https://github.com/BossHobby/QUICKSILVER/blob/master/misc/Logo_fixed.png?raw=true)
+<img src="https://github.com/BossHobby/QUICKSILVER/blob/master/misc/Logo.svg?raw=true" width="256">
 
 # QUICKSILVER [![Build Status](https://ci.bkleiner.codes/api/badges/BossHobby/QUICKSILVER/status.svg)](https://ci.bkleiner.codes/BossHobby/QUICKSILVER)
 Flight Controller Firmware
 
 ## Features
 
-* Supports F4 and F7 flight controllers
+* Supports F4, F7 and H7 flight controllers
 * Sane defaults and simple configuration
-* Important configuration accesable via the OSD
+* Important configuration accessible via the OSD
 * Outstanding level-mode performance
 * Easy save and restore of configuration parameters
 
 ## Configurator
 
-QUICKSILVER comes with configuration application for Windows, MacOS and Linux.  
+QUICKSILVER comes with configuration application for Windows, MacOS and Linux.   
+A web version is available at [config.bosshobby.com](https://config.bosshobby.com).  
 It's source and pre-compiled binaries can be found [here](https://github.com/BossHobby/Configurator).
 
 ## Community
 
 - [Offical Discord](https://discord.gg/8StVhvB6Tm)
 - [Unoffical Facebook Group](https://www.facebook.com/groups/quicksilverfirmware/?ref=share)
+
+## Flashing
+
+The Configurator offers easy flashing
+
+![1647870432](https://user-images.githubusercontent.com/15615439/159275524-0ab7f0f0-428a-47c5-bf25-a25ec72f3d7d.gif)
 
 ## Building
 

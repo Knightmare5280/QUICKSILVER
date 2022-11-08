@@ -6,30 +6,33 @@
 #include "drv_time.h"
 #include "project.h"
 
+#define ICM42605_ID (0x42)
+#define ICM42688P_ID (0x47)
+<<<<<<< HEAD
+=======
+
 #define PORT spi_port_defs[GYRO_SPI_PORT]
 
-static void icm42605_reinit_slow() {
-  spi_dma_wait_for_ready(GYRO_SPI_PORT);
-  LL_SPI_Disable(PORT.channel);
+#define SPI_SPEED_SLOW MHZ_TO_HZ(0.5)
+#define SPI_SPEED_FAST MHZ_TO_HZ(24)
 
-  // SPI Config
-  LL_SPI_DeInit(PORT.channel);
-  LL_SPI_InitTypeDef spi_init;
-  spi_init.TransferDirection = LL_SPI_FULL_DUPLEX;
-  spi_init.Mode = LL_SPI_MODE_MASTER;
-  spi_init.DataWidth = LL_SPI_DATAWIDTH_8BIT;
-  spi_init.ClockPolarity = LL_SPI_POLARITY_HIGH;
-  spi_init.ClockPhase = LL_SPI_PHASE_2EDGE;
-  spi_init.NSS = LL_SPI_NSS_SOFT;
-  spi_init.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV64;
-  spi_init.BitOrder = LL_SPI_MSB_FIRST;
-  spi_init.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
-  spi_init.CRCPoly = 7;
-  LL_SPI_Init(PORT.channel, &spi_init);
+extern spi_bus_device_t gyro_bus;
 
-  LL_SPI_Enable(PORT.channel);
+uint8_t icm42605_detect() {
+  const uint8_t id = icm42605_read(ICM42605_WHO_AM_I);
+  switch (id) {
+  case ICM42605_ID:
+    return GYRO_TYPE_ICM42605;
+  case ICM42688P_ID:
+    return GYRO_TYPE_ICM42688P;
+  default:
+    return GYRO_TYPE_INVALID;
+  }
 }
 
+<<<<<<< HEAD
+void icm42605_configure() {
+=======
 static void icm42605_reinit_fast(void) {
   spi_dma_wait_for_ready(GYRO_SPI_PORT);
   LL_SPI_Disable(PORT.channel);
@@ -78,9 +81,24 @@ static void icm42605_init() {
   spi_dma_init(GYRO_SPI_PORT);
 }
 
-uint8_t icm42605_configure() {
+uint8_t icm42605_detect() {
   icm42605_init();
 
+  const uint8_t id = icm42605_read(ICM42605_WHO_AM_I);
+  switch (id) {
+  case ICM42605_ID:
+    return GYRO_TYPE_ICM42605;
+  // case ICM42688P_ID:
+  //   return GYRO_TYPE_MPU6500;
+  default:
+    return GYRO_TYPE_INVALID;
+  }
+}
+
+void icm42605_configure() {
+  icm42605_init();
+
+>>>>>>> 53276eff (auto detect gyro type)
   icm42605_write(ICM42605_PWR_MGMT0, 0x00); // reset
   time_delay_ms(150);
 
@@ -101,47 +119,40 @@ uint8_t icm42605_configure() {
 
   icm42605_write(ICM42605_INT_CONFIG0, ICM42605_UI_DRDY_INT_CLEAR_ON_SBR);
   time_delay_ms(100);
-
-  return icm42605_read(ICM42605_WHO_AM_I);
 }
 
 uint8_t icm42605_read(uint8_t reg) {
-  icm42605_reinit_slow();
+  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, SPI_SPEED_SLOW);
 
   uint8_t buffer[2] = {reg | 0x80, 0x00};
 
-  spi_csn_enable(GYRO_NSS);
-  spi_dma_transfer_bytes(GYRO_SPI_PORT, buffer, 2);
-  spi_csn_disable(GYRO_NSS);
+  spi_txn_t *txn = spi_txn_init(&gyro_bus, NULL);
+  spi_txn_add_seg(txn, buffer, buffer, 2);
+  spi_txn_submit(txn);
+
+  spi_txn_wait(&gyro_bus);
 
   return buffer[1];
 }
 
 void icm42605_write(uint8_t reg, uint8_t data) {
-  icm42605_reinit_slow();
+  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, SPI_SPEED_SLOW);
 
-  uint8_t buffer[2] = {reg, data};
+  spi_txn_t *txn = spi_txn_init(&gyro_bus, NULL);
+  spi_txn_add_seg_const(txn, reg);
+  spi_txn_add_seg_const(txn, data);
+  spi_txn_submit(txn);
 
-  spi_csn_enable(GYRO_NSS);
-  spi_dma_transfer_bytes(GYRO_SPI_PORT, buffer, 2);
-  spi_csn_disable(GYRO_NSS);
+  spi_txn_wait(&gyro_bus);
 }
 
 void icm42605_read_data(uint8_t reg, uint8_t *data, uint32_t size) {
-  icm42605_reinit_fast();
+  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, SPI_SPEED_FAST);
 
-  uint8_t buffer[size + 1];
+  spi_txn_t *txn = spi_txn_init(&gyro_bus, NULL);
+  spi_txn_add_seg_const(txn, reg | 0x80);
+  spi_txn_add_seg(txn, data, NULL, size);
+  spi_txn_submit(txn);
 
-  buffer[0] = reg | 0x80;
-  for (uint32_t i = 0; i < size; i++) {
-    buffer[i + 1] = 0x0;
-  }
-
-  spi_csn_enable(GYRO_NSS);
-  spi_dma_transfer_bytes(GYRO_SPI_PORT, buffer, size + 1);
-  spi_csn_disable(GYRO_NSS);
-
-  for (int i = 1; i < size + 1; i++) {
-    data[i - 1] = buffer[i];
-  }
+  spi_txn_wait(&gyro_bus);
 }

@@ -5,6 +5,7 @@
 #include "drv_gpio.h"
 #include "drv_serial_soft.h"
 #include "project.h"
+#include "util/circular_buffer.h"
 
 typedef enum {
   RX_SERIAL_PROTOCOL_INVALID,
@@ -25,6 +26,13 @@ typedef enum {
 #define RX_SERIAL_PROTOCOL_MAX RX_SERIAL_PROTOCOL_REDPINE_INVERTED
 
 typedef struct {
+  usart_ports_t port;
+
+  circular_buffer_t *rx_buffer;
+  circular_buffer_t *tx_buffer;
+} serial_port_t;
+
+typedef struct {
   uint8_t channel_index;
   USART_TypeDef *channel;
 
@@ -43,11 +51,12 @@ extern usart_ports_t serial_hdzero_port;
 void serial_rx_init(rx_serial_protocol_t rx_serial_protocol);
 
 void serial_enable_rcc(usart_ports_t port);
-void serial_init(usart_ports_t port, uint32_t buadrate, bool half_duplex);
+void serial_port_init(usart_ports_t port, LL_USART_InitTypeDef *usart_init, bool half_duplex, bool invert);
 void serial_enable_isr(usart_ports_t port);
 void serial_disable_isr(usart_ports_t port);
 
-bool serial_read_bytes(usart_ports_t port, uint8_t *data, const uint32_t size);
-bool serial_write_bytes(usart_ports_t port, const uint8_t *data, const uint32_t size);
+void serial_init(serial_port_t *serial, usart_ports_t port, uint32_t baudrate, uint8_t stop_bits, bool half_duplex);
+uint32_t serial_read_bytes(serial_port_t *serial, uint8_t *data, const uint32_t size);
+bool serial_write_bytes(serial_port_t *serial, const uint8_t *data, const uint32_t size);
 
 bool serial_is_soft(usart_ports_t port);

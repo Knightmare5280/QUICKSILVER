@@ -4,6 +4,7 @@
 
 #define TMOTORF7
 
+<<<<<<< HEAD
 //PORTS
 #define SPI_PORTS \
   SPI1_PA5PA6PA7  \
@@ -18,12 +19,29 @@
 	USART5_PD2PC12
 
 //LEDS
+=======
+// PORTS
+#define SPI_PORTS   \
+  SPI1_PA5PA6PA7    \
+  SPI2_PB13PB14PB15 \
+  SPI3_PB3PB4PB5
+
+#define USART_PORTS \
+  USART1_PA10PA9    \
+  USART2_PA3PA2     \
+  USART3_PC11PC10   \
+  USART4_PA1PA0     \
+  USART5_PD2PC12
+
+// LEDS
+>>>>>>> master
 #define LED_NUMBER 1
 #define LED1PIN PIN_B2
 #define LED1_INVERT
 
 #define BUZZER_PIN PIN_C13
 
+<<<<<<< HEAD
 //GYRO
 #define GYRO_TYPE MPU6XXX
 #define GYRO_SPI_PORT SPI_PORT1
@@ -38,16 +56,33 @@
 //RADIO
 
 
+=======
+// GYRO
+#define GYRO_SPI_PORT SPI_PORT1
+#define GYRO_NSS PIN_A4
+#define GYRO_INT PIN_C4
+#define GYRO_ORIENTATION GYRO_ROTATE_90_CW
+
+// RADIO
+>>>>>>> master
 #ifdef SERIAL_RX
 #define RX_USART USART_PORT2
 #endif
 
 // OSD
+<<<<<<< HEAD
 #define ENABLE_OSD
 #define MAX7456_SPI_PORT SPI_PORT2
 #define MAX7456_NSS PIN_B12
 
 //VOLTAGE DIVIDER
+=======
+#define USE_MAX7456
+#define MAX7456_SPI_PORT SPI_PORT2
+#define MAX7456_NSS PIN_B12
+
+// VOLTAGE DIVIDER
+>>>>>>> master
 #define VBAT_PIN PIN_C1
 #define VBAT_DIVIDER_R1 10000
 #define VBAT_DIVIDER_R2 1000
@@ -56,6 +91,7 @@
 #define IBAT_SCALE 179
 
 // MOTOR PINS
+<<<<<<< HEAD
 //S3_OUT
 #define MOTOR_PIN0 MOTOR_PIN_PB0
 //S4_OUT
@@ -63,4 +99,13 @@
 //S1_OUT
 #define MOTOR_PIN2 MOTOR_PIN_PC6
 //S2_OUT
+=======
+// S3_OUT
+#define MOTOR_PIN0 MOTOR_PIN_PB0
+// S4_OUT
+#define MOTOR_PIN1 MOTOR_PIN_PB1
+// S1_OUT
+#define MOTOR_PIN2 MOTOR_PIN_PC6
+// S2_OUT
+>>>>>>> master
 #define MOTOR_PIN3 MOTOR_PIN_PC7

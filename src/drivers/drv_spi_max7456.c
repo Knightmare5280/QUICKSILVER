@@ -9,9 +9,14 @@
 #include "string.h"
 #include "util/util.h"
 
-#ifdef ENABLE_OSD
+#ifdef USE_MAX7456
 
+<<<<<<< HEAD
 #define MAX7456_BAUD_RATE spi_find_divder(MHZ_TO_HZ(10.5))
+=======
+#define DMA_BUFFER_SIZE 128
+#define MAX7456_BAUD_RATE MHZ_TO_HZ(10.5)
+>>>>>>> master
 
 // osd video system (PAL/NTSC) at startup if no video input is present
 // after input is present the last detected system will be used.
@@ -21,16 +26,27 @@ static osd_system_t last_osd_system = OSD_SYS_NONE;
 // detected osd video system starts at 99 and gets updated here by osd_checksystem()
 static uint8_t lastvm0 = 0x55;
 
+<<<<<<< HEAD
 static uint8_t dma_buffer[64];
 static uint16_t dma_offset = 0;
 
 static volatile uint8_t buffer[128];
 static volatile spi_bus_device_t bus = {
+=======
+static uint8_t dma_buffer[DMA_BUFFER_SIZE];
+
+static DMA_RAM uint8_t buffer[DMA_BUFFER_SIZE * 2];
+static spi_bus_device_t bus = {
+>>>>>>> master
     .port = MAX7456_SPI_PORT,
     .nss = MAX7456_NSS,
 
     .buffer = buffer,
+<<<<<<< HEAD
     .buffer_size = 128,
+=======
+    .buffer_size = DMA_BUFFER_SIZE * 2,
+>>>>>>> master
 
     .auto_continue = true,
 };
@@ -52,7 +68,11 @@ static uint8_t max7456_map_attr(uint8_t attr) {
 
 // blocking dma read of a single register
 static uint8_t max7456_dma_spi_read(uint8_t reg) {
+<<<<<<< HEAD
   spi_bus_device_reconfigure(&bus, true, MAX7456_BAUD_RATE);
+=======
+  spi_bus_device_reconfigure(&bus, SPI_MODE_LEADING_EDGE, MAX7456_BAUD_RATE);
+>>>>>>> master
 
   uint8_t buffer[2] = {reg, 0xFF};
 
@@ -67,7 +87,11 @@ static uint8_t max7456_dma_spi_read(uint8_t reg) {
 
 // blocking dma write of a single register
 static void max7456_dma_spi_write(uint8_t reg, uint8_t data) {
+<<<<<<< HEAD
   spi_bus_device_reconfigure(&bus, true, MAX7456_BAUD_RATE);
+=======
+  spi_bus_device_reconfigure(&bus, SPI_MODE_LEADING_EDGE, MAX7456_BAUD_RATE);
+>>>>>>> master
 
   spi_txn_t *txn = spi_txn_init(&bus, NULL);
   spi_txn_add_seg_const(txn, reg);
@@ -109,14 +133,22 @@ static void max7456_init_display() {
 // establish initial boot-up state
 void max7456_init() {
   spi_bus_device_init(&bus);
+<<<<<<< HEAD
   spi_bus_device_reconfigure(&bus, true, MAX7456_BAUD_RATE);
+=======
+  spi_bus_device_reconfigure(&bus, SPI_MODE_LEADING_EDGE, MAX7456_BAUD_RATE);
+>>>>>>> master
 
   max7456_init_display();
 }
 
 // non blocking bulk dma transmit for interrupt callback configuration
 static void max7456_dma_it_transfer_bytes(const uint8_t *buffer, const uint8_t size) {
+<<<<<<< HEAD
   spi_bus_device_reconfigure(&bus, true, MAX7456_BAUD_RATE);
+=======
+  spi_bus_device_reconfigure(&bus, SPI_MODE_LEADING_EDGE, MAX7456_BAUD_RATE);
+>>>>>>> master
 
   spi_txn_t *txn = spi_txn_init(&bus, NULL);
   spi_txn_add_seg(txn, NULL, buffer, size);
@@ -167,6 +199,7 @@ static osd_system_t max7456_current_system() {
 }
 
 uint8_t max7456_clear_async() {
+<<<<<<< HEAD
   spi_txn_wait(&bus);
 
   static uint8_t clr_col = 0;
@@ -185,6 +218,22 @@ uint8_t max7456_clear_async() {
       clr_col = 0;
       return 1;
     }
+=======
+  if (!spi_txn_ready(&bus)) {
+    return 0;
+  }
+
+  static uint8_t row = 0;
+
+  static const uint8_t buffer[] = "                                ";
+  max7456_push_string(OSD_ATTR_TEXT, 0, row, buffer, 32);
+
+  row++;
+
+  if (row > MAX7456_ROWS) {
+    row = 0;
+    return 1;
+>>>>>>> master
   }
 
   return 0;
@@ -236,10 +285,15 @@ osd_system_t max7456_check_system() {
     } else if (warning_sent == 1) {
       spi_txn_wait(&bus);
 
+<<<<<<< HEAD
       osd_transaction_t *txn = osd_txn_init();
       osd_txn_start(OSD_ATTR_BLINK, SYSTEMXPOS, SYSTEMYPOS);
       osd_txn_write_str("NO CAMERA SIGNAL");
       osd_txn_submit(txn);
+=======
+      osd_start(OSD_ATTR_BLINK, SYSTEMXPOS, SYSTEMYPOS);
+      osd_write_str("NO CAMERA SIGNAL");
+>>>>>>> master
 
       spi_txn_wait(&bus);
     } else if (warning_sent > 1) {
@@ -264,15 +318,20 @@ void max7456_intro() {
       buffer[i] = start + i;
     }
 
+<<<<<<< HEAD
     osd_transaction_t *txn = osd_txn_init();
     osd_txn_start(OSD_ATTR_TEXT, 3, row + 5);
     osd_txn_write_data(buffer, 24);
     osd_txn_submit(txn);
 
+=======
+    max7456_push_string(OSD_ATTR_TEXT, 3, row + 5, buffer, 24);
+>>>>>>> master
     spi_txn_wait(&bus);
   }
 }
 
+<<<<<<< HEAD
 void max7456_txn_start(osd_transaction_t *txn, uint8_t attr, uint8_t x, uint8_t y) {
   if (dma_offset > 0) {
     // off autoincrement mode
@@ -288,6 +347,22 @@ void max7456_txn_start(osd_transaction_t *txn, uint8_t attr, uint8_t x, uint8_t 
     y = MAXROWS - 1;
   }
 
+=======
+bool max7456_can_fit(uint8_t size) {
+  return spi_txn_ready(&bus);
+}
+
+bool max7456_push_string(uint8_t attr, uint8_t x, uint8_t y, const uint8_t *data, uint8_t size) {
+  // NTSC adjustment 3 lines up if after line 12 or maybe this should be 8
+  if (last_osd_system != OSD_SYS_PAL && y > 12) {
+    y = y - 2;
+  }
+  if (y > MAX7456_ROWS - 1) {
+    y = MAX7456_ROWS - 1;
+  }
+
+  uint16_t dma_offset = 0;
+>>>>>>> master
   const uint16_t pos = x + y * 30;
 
   dma_buffer[dma_offset++] = DMM;
@@ -296,6 +371,7 @@ void max7456_txn_start(osd_transaction_t *txn, uint8_t attr, uint8_t x, uint8_t 
   dma_buffer[dma_offset++] = (pos >> 8) & 0xFF;
   dma_buffer[dma_offset++] = DMAL;
   dma_buffer[dma_offset++] = pos & 0xFF;
+<<<<<<< HEAD
 }
 
 void max7456_txn_write_char(osd_transaction_t *txn, const char val) {
@@ -310,12 +386,29 @@ void max7456_txn_write_data(osd_transaction_t *txn, const uint8_t *buffer, uint8
 }
 
 void max7456_txn_submit(osd_transaction_t *txn) {
+=======
+
+  for (uint8_t i = 0; i < size; i++) {
+    dma_buffer[dma_offset++] = DMDI;
+    dma_buffer[dma_offset++] = data[i];
+  }
+
+>>>>>>> master
   // off autoincrement mode
   dma_buffer[dma_offset++] = DMDI;
   dma_buffer[dma_offset++] = 0xFF;
 
   max7456_dma_it_transfer_bytes(dma_buffer, dma_offset);
+<<<<<<< HEAD
   dma_offset = 0;
+=======
+
+  return true;
+}
+
+bool max7456_flush() {
+  return true;
+>>>>>>> master
 }
 
 bool max7456_is_ready() {

@@ -2,7 +2,7 @@
 
 #include "project.h"
 
-#if defined(STM32F4) || defined(STM32F7)
+#if defined(STM32F7) || defined(STM32H7)
 // See "RM CoreSight Architecture Specification"
 // B2.3.10  "LSR and LAR, Software Lock Status Register and Software Lock Access Register"
 // "E1.2.11  LAR, Lock Access Register"
@@ -19,6 +19,10 @@ static void debug_time_init() {
 #if defined(STM32F7)
   DWT->LAR = DWT_LAR_UNLOCK_VALUE;
 #endif
+#if defined(STM32H7)
+  ITM->LAR = DWT_LAR_UNLOCK_VALUE;
+  DWT->LAR = DWT_LAR_UNLOCK_VALUE;
+#endif
   DWT->CYCCNT = 0;
   DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
@@ -26,7 +30,9 @@ static void debug_time_init() {
 void time_init() {
   SystemCoreClockUpdate();
 
+#ifndef STM32H7
   __HAL_RCC_PWR_CLK_ENABLE();
+#endif
   __HAL_RCC_SYSCFG_CLK_ENABLE();
 
   // interrupt only every 1ms
@@ -40,6 +46,11 @@ void SysTick_Handler() {
   systick_val = SysTick->VAL;
   systick_pending = 0;
   (void)(SysTick->CTRL);
+
+#ifdef USE_HAL_DRIVER
+  // used by the HAL for some timekeeping and timeouts, should always be 1ms
+  HAL_IncTick();
+#endif
 }
 
 uint32_t time_micros_isr() {

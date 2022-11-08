@@ -3,10 +3,9 @@
     "name": "aikon_f4",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -15,10 +14,9 @@
     "name": "alienwhoop_v2",
     "configurations": [
       {
-        "name": "brushed.serial",
+        "name": "brushed",
         "defines": {
-          "BRUSHED_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHED_TARGET": ""
         }
       }
     ]
@@ -27,10 +25,9 @@
     "name": "alienwhoop_v3",
     "configurations": [
       {
-        "name": "brushed.serial",
+        "name": "brushed",
         "defines": {
-          "BRUSHED_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHED_TARGET": ""
         }
       }
     ]
@@ -39,31 +36,9 @@
     "name": "matekf411rx",
     "configurations": [
       {
-        "name": "brushed.frsky",
+        "name": "brushless",
         "defines": {
-          "BRUSHED_TARGET": "",
-          "RX_FRSKY_D8": ""
-        }
-      },
-      {
-        "name": "brushless.frsky",
-        "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_FRSKY_D8": ""
-        }
-      },
-      {
-        "name": "brushless.redpine",
-        "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_REDPINE": ""
-        }
-      },
-      {
-        "name": "brushless.serial",
-        "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -72,10 +47,9 @@
     "name": "matekf411",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -84,10 +58,9 @@
     "name": "flywoof411",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -96,43 +69,37 @@
     "name": "matekf405",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
   },
   {
-    "name": "crazybee_f4",
+    "name": "crazybee_f4_frsky",
     "configurations": [
       {
-        "name": "brushless.frsky",
+        "name": "brushed",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_FRSKY_D8": ""
+          "BRUSHED_TARGET": ""
         }
       },
       {
-        "name": "brushless.redpine",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_REDPINE": ""
+          "BRUSHLESS_TARGET": ""
         }
-      },
+      }
+    ]
+  },
+  {
+    "name": "crazybee_f4_elrs",
+    "configurations": [
       {
-        "name": "brushless.expresslrs",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_EXPRESS_LRS": ""
-        }
-      },
-      {
-        "name": "brushless.serial",
-        "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -141,10 +108,9 @@
     "name": "nox",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -153,10 +119,9 @@
     "name": "pyrodrone_f4",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -165,10 +130,9 @@
     "name": "clracing_f4",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -177,10 +141,9 @@
     "name": "omnibusf4",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -189,10 +152,9 @@
     "name": "omnibusf4sd",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -201,10 +163,9 @@
     "name": "nfe_breadboard",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -213,10 +174,9 @@
     "name": "ff_racepit",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -225,10 +185,9 @@
     "name": "bluejayf4",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -237,10 +196,9 @@
     "name": "fpvcyclef411",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -249,10 +207,9 @@
     "name": "iflight_succex_e_f4",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -261,24 +218,9 @@
     "name": "iflightf411rx",
     "configurations": [
       {
-        "name": "brushless.frsky",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_FRSKY_D8": ""
-        }
-      },
-      {
-        "name": "brushless.redpine",
-        "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_REDPINE": ""
-        }
-      },
-      {
-        "name": "brushless.serial",
-        "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -287,10 +229,9 @@
     "name": "zeusf4evo",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -299,17 +240,20 @@
     "name": "betafpvf411rx",
     "configurations": [
       {
-        "name": "brushless.expresslrs",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_EXPRESS_LRS": ""
+          "BRUSHLESS_TARGET": ""
         }
-      },
+      }
+    ]
+  },
+  {
+    "name": "betafpvf411",
+    "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -330,10 +274,9 @@
     "name": "furyf4osd",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -342,10 +285,9 @@
     "name": "iflight_f745_aio_v2",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -354,10 +296,9 @@
     "name": "kakutef7v2",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -366,10 +307,9 @@
     "name": "hglrcf411",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -378,10 +318,9 @@
     "name": "alienflightngf7",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -390,10 +329,9 @@
     "name": "talonf7djihd",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -402,10 +340,9 @@
     "name": "kakutef7miniv3",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -414,10 +351,9 @@
     "name": "mambaf722_i2c",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]
@@ -426,10 +362,273 @@
     "name": "mambaf411",
     "configurations": [
       {
-        "name": "brushless.serial",
+        "name": "brushless",
         "defines": {
-          "BRUSHLESS_TARGET": "",
-          "RX_UNIFIED_SERIAL": ""
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "tmotorf7",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "zeusf4fr",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "zeusf722_aio",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "betaflightf4",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "hglrcf722",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "flywoof411rx",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "geprcf405",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "geprcf411",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "aikon_f7",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "hifionrc_f722",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "foxeerf745_aio",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "kakuteh7",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "matekh743",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "iflight_h743_aio_v2",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "iflight_h743_aio_v1",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "jhef405pro",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "crazybee_f4",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "iflight_blitz_f411_elrs",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "betafpv_f405",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "zeez_f7_v1",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "tunercf405",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "neutronrcf411_elrs",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "flywoof405s_aio",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "speedybeef7mini_v2",
+    "configurations": [
+      {
+        "name": "brushless",
+        "defines": {
+          "BRUSHLESS_TARGET": ""
         }
       }
     ]

@@ -3,24 +3,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "drv_dma.h"
 #include "drv_gpio.h"
 #include "project.h"
 #include "spi_ports.h"
-
-typedef struct {
-  DMA_TypeDef *dma;
-  uint32_t dma_port;
-  uint32_t channel;
-  uint8_t channel_index;
-
-  uint8_t rx_stream_index;
-  DMA_Stream_TypeDef *rx_stream;
-  IRQn_Type rx_it;
-
-  uint8_t tx_stream_index;
-  DMA_Stream_TypeDef *tx_stream;
-  IRQn_Type tx_it;
-} spi_dma_def_t;
 
 typedef struct {
   uint8_t channel_index;
@@ -32,14 +18,14 @@ typedef struct {
   gpio_pins_t miso;
   gpio_pins_t mosi;
 
-  spi_dma_def_t dma;
+  dma_device_t dma_rx;
+  dma_device_t dma_tx;
 } spi_port_def_t;
 
 #define SPI_TXN_MAX 16
 #define SPI_TXN_SEG_MAX 8
 
 typedef struct {
-  bool live;
   const uint8_t *tx_data;
   uint8_t *rx_data;
   uint32_t size;
@@ -58,12 +44,13 @@ typedef enum {
   TXN_READY,
   TXN_IN_PROGRESS,
   TXN_DONE,
+  TXN_ERROR,
 } spi_txn_status_t;
 
 typedef void (*spi_txn_done_fn_t)();
 
 typedef struct {
-  volatile struct spi_bus_device *bus;
+  struct spi_bus_device *bus;
 
   spi_txn_status_t status;
 
@@ -80,46 +67,42 @@ typedef struct spi_bus_device {
   spi_ports_t port;
   gpio_pins_t nss;
 
-  volatile uint8_t *buffer;
+  uint8_t *buffer;
   uint32_t buffer_size;
 
   bool auto_continue;
   bool (*poll_fn)();
 
-  uint8_t txn_head;
-  uint8_t txn_tail;
+  // only modified by the main loop
+  volatile uint8_t txn_head;
+  // only modified by the intterupt or protected code
+  volatile uint8_t txn_tail;
+
   spi_txn_t txns[SPI_TXN_MAX];
+
+  spi_mode_t mode;
+  uint32_t hz;
 } spi_bus_device_t;
 
 extern const spi_port_def_t spi_port_defs[SPI_PORTS_MAX];
 
-void spi_enable_rcc(spi_ports_t port);
-void spi_init_pins(spi_ports_t port, gpio_pins_t nss);
-
-uint32_t spi_find_divder(uint32_t clk_hz);
-
-void spi_csn_enable(gpio_pins_t nss);
-void spi_csn_disable(gpio_pins_t nss);
-
-uint8_t spi_transfer_byte(spi_ports_t port, uint8_t data);
-uint8_t spi_transfer_byte_timeout(spi_ports_t port, uint8_t data, uint32_t timeout);
-
-void spi_dma_init(spi_ports_t port);
-
 uint8_t spi_dma_is_ready(spi_ports_t port);
-bool spi_dma_wait_for_ready(spi_ports_t port);
-void spi_dma_transfer_begin(spi_ports_t port, uint8_t *buffer, uint32_t length);
-void spi_dma_transfer_bytes(spi_ports_t port, uint8_t *buffer, uint32_t length);
 
-void spi_bus_device_init(volatile spi_bus_device_t *bus);
-void spi_bus_device_reconfigure(volatile spi_bus_device_t *bus, spi_mode_t mode, uint32_t baud_rate);
+void spi_bus_device_init(spi_bus_device_t *bus);
+void spi_bus_device_reconfigure(spi_bus_device_t *bus, spi_mode_t mode, uint32_t hz);
 
-spi_txn_t *spi_txn_init(volatile spi_bus_device_t *bus, spi_txn_done_fn_t done_fn);
+void spi_csn_enable(spi_bus_device_t *bus);
+void spi_csn_disable(spi_bus_device_t *bus);
+
+spi_txn_t *spi_txn_init(spi_bus_device_t *bus, spi_txn_done_fn_t done_fn);
 void spi_txn_add_seg(spi_txn_t *txn, uint8_t *rx_data, const uint8_t *tx_data, uint32_t size);
 void spi_txn_add_seg_delay(spi_txn_t *txn, uint8_t *rx_data, const uint8_t *tx_data, uint32_t size);
 void spi_txn_add_seg_const(spi_txn_t *txn, const uint8_t tx_data);
 void spi_txn_submit(spi_txn_t *txn);
 
-void spi_txn_continue(volatile spi_bus_device_t *bus);
-bool spi_txn_ready(volatile spi_bus_device_t *bus);
-void spi_txn_wait(volatile spi_bus_device_t *bus);
+void spi_txn_continue(spi_bus_device_t *bus);
+void spi_txn_continue_ex(spi_bus_device_t *bus, bool force_sync);
+bool spi_txn_ready(spi_bus_device_t *bus);
+void spi_txn_wait(spi_bus_device_t *bus);
+void spi_txn_submit_wait(spi_bus_device_t *bus, spi_txn_t *txn);
+void spi_txn_submit_continue(spi_bus_device_t *bus, spi_txn_t *txn);

@@ -25,16 +25,10 @@
 #define FPV_PIN PIN_A13
 
 // GYRO
-#define GYRO_TYPE MPU6XXX
 #define GYRO_SPI_PORT SPI_PORT2
 #define GYRO_NSS PIN_B12
 #define GYRO_INT PIN_A8
-#define SENSOR_ROTATE_90_CW
-#define GYRO_ID_1 0x68
-#define GYRO_ID_2 0x73
-#define GYRO_ID_3 0x78
-#define GYRO_ID_4 0x71
-//#define DISABLE_GYRO_CHECK
+#define GYRO_ORIENTATION GYRO_ROTATE_90_CW
 
 // RADIO
 #define USART2_INVERTER_PIN PIN_C14
@@ -43,15 +37,13 @@
 #define RX_USART USART_PORT2
 #endif
 
-#ifdef RX_FRSKY
 #define USE_CC2500
 #define CC2500_SPI_PORT SPI_PORT1
-#define CC2500_NSS PIN_B7
+#define CC2500_NSS_PIN PIN_B7
 #define CC2500_GDO0_PIN PIN_B6
-#endif
 
 // OSD
-//#define ENABLE_OSD
+//#define USE_MAX7456
 //#define MAX7456_SPI_PORT SPI_PORT2
 //#define MAX7456_NSS PIN_A10
 

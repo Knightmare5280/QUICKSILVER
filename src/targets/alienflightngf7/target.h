@@ -25,15 +25,10 @@
 #define BUZZER_PIN PIN_C13
 
 // GYRO
-#define GYRO_TYPE ICM20602
 #define GYRO_SPI_PORT SPI_PORT1
 #define GYRO_NSS PIN_A4
 #define GYRO_INT PIN_C14
-#define SENSOR_ROTATE_180
-#define GYRO_ID_1 0x12
-#define GYRO_ID_2 0xaf
-#define GYRO_ID_3 0xac
-#define GYRO_ID_4 0x98
+#define GYRO_ORIENTATION GYRO_ROTATE_180
 
 // RADIO
 #ifdef SERIAL_RX
@@ -41,7 +36,7 @@
 #endif
 
 // OSD
-#define ENABLE_OSD
+#define USE_MAX7456
 #define MAX7456_SPI_PORT SPI_PORT3
 #define MAX7456_NSS PIN_B12
 

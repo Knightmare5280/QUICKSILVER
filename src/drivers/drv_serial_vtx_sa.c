@@ -5,9 +5,15 @@
 #include "drv_serial.h"
 #include "drv_serial_vtx.h"
 #include "drv_time.h"
+#include "io/usb_configurator.h"
 #include "profile.h"
+<<<<<<< HEAD
 #include "usb_configurator.h"
 #include "util/circular_buffer.h"
+=======
+#include "util/circular_buffer.h"
+#include "util/crc.h"
+>>>>>>> master
 #include "util/util.h"
 
 #ifdef ENABLE_SMART_AUDIO
@@ -17,6 +23,8 @@
 #define SMART_AUDIO_BUFFER_SIZE 128
 
 #define SA_HEADER_SIZE 5
+#define SA_MAGIC_1 0xaa
+#define SA_MAGIC_2 0x55
 
 #define USART usart_port_defs[serial_smart_audio_port]
 
@@ -24,8 +32,11 @@ typedef enum {
   PARSER_IDLE,
   PARSER_ERROR,
   PARSER_INIT,
-  PARSER_READ_MAGIC,
+  PARSER_READ_MAGIC_1,
+  PARSER_READ_MAGIC_2,
+  PARSER_READ_CMD,
   PARSER_READ_PAYLOAD,
+  PARSER_READ_LENGTH,
   PARSER_READ_CRC,
 } smart_audio_parser_state_t;
 
@@ -42,7 +53,7 @@ extern uint32_t vtx_last_request;
 
 extern volatile uint8_t vtx_transfer_done;
 
-extern volatile circular_buffer_t vtx_rx_buffer;
+extern circular_buffer_t vtx_rx_buffer;
 
 extern uint8_t vtx_frame[VTX_BUFFER_SIZE];
 extern volatile uint8_t vtx_frame_length;
@@ -65,8 +76,6 @@ static void serial_smart_audio_reconfigure() {
 
   serial_disable_isr(serial_smart_audio_port);
 
-  LL_USART_DeInit(USART.channel);
-
   LL_GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -74,25 +83,19 @@ static void serial_smart_audio_reconfigure() {
   GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   gpio_pin_init_af(&GPIO_InitStructure, USART.tx_pin, USART.gpio_af);
 
-  LL_USART_InitTypeDef USART_InitStructure;
-  USART_InitStructure.BaudRate = baud_rate;
-  USART_InitStructure.DataWidth = LL_USART_DATAWIDTH_8B;
-  USART_InitStructure.StopBits = LL_USART_STOPBITS_2;
-  USART_InitStructure.Parity = LL_USART_PARITY_NONE;
-  USART_InitStructure.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-  USART_InitStructure.TransferDirection = LL_USART_DIRECTION_TX_RX;
-  USART_InitStructure.OverSampling = LL_USART_OVERSAMPLING_16;
-  LL_USART_Init(USART.channel, &USART_InitStructure);
+  LL_USART_InitTypeDef usart_init;
+  LL_USART_StructInit(&usart_init);
+  usart_init.BaudRate = baud_rate;
+  usart_init.DataWidth = LL_USART_DATAWIDTH_8B;
+  usart_init.StopBits = LL_USART_STOPBITS_2;
+  usart_init.Parity = LL_USART_PARITY_NONE;
+  usart_init.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+  usart_init.TransferDirection = LL_USART_DIRECTION_TX_RX;
+  usart_init.OverSampling = LL_USART_OVERSAMPLING_16;
+  serial_port_init(serial_smart_audio_port, &usart_init, true, false);
 
-  // LL_USART_ClearFlag_RXNE(USART.channel);
-  LL_USART_ClearFlag_TC(USART.channel);
-
-  LL_USART_DisableIT_TXE(USART.channel);
   LL_USART_EnableIT_RXNE(USART.channel);
   LL_USART_EnableIT_TC(USART.channel);
-
-  LL_USART_ConfigHalfDuplexMode(USART.channel);
-  LL_USART_Enable(USART.channel);
 
   serial_enable_isr(serial_smart_audio_port);
 }
@@ -131,34 +134,11 @@ static void smart_audio_auto_baud() {
   packets_recv = 0;
 }
 
-#define POLYGEN 0xd5
-static uint8_t crc8(uint8_t crc, const uint8_t input) {
-  crc ^= input; /* XOR-in the next input byte */
-
-  for (int i = 0; i < 8; i++) {
-    if ((crc & 0x80) != 0) {
-      crc = (uint8_t)((crc << 1) ^ POLYGEN);
-    } else {
-      crc <<= 1;
-    }
-  }
-
-  return crc;
-}
-
-static uint8_t crc8_data(const uint8_t *data, const int8_t len) {
-  uint8_t crc = 0; /* start with 0 so first byte can be 'xored' in */
-  for (int i = 0; i < len; i++) {
-    crc = crc8(crc, data[i]);
-  }
-  return crc;
-}
-
 static uint8_t serial_smart_audio_read_byte_crc(uint8_t *crc, uint8_t *data) {
   if (serial_vtx_read_byte(data) == 0) {
     return 0;
   }
-  *crc = crc8(*crc, *data);
+  *crc = crc8_dvb_s2_calc(*crc, *data);
   return 1;
 }
 
@@ -240,11 +220,6 @@ vtx_update_result_t serial_smart_audio_update() {
     return VTX_ERROR;
   }
 
-  static const uint8_t magic_bytes[2] = {
-      0xaa,
-      0x55,
-  };
-
   static uint8_t payload_offset = 0;
 
   static uint8_t crc = 0;
@@ -269,7 +244,7 @@ vtx_update_result_t serial_smart_audio_update() {
       crc = 0;
       cmd = 0;
       length = 0;
-      parser_state = PARSER_READ_MAGIC;
+      parser_state = PARSER_READ_MAGIC_1;
 
       serial_vtx_send_data(vtx_frame, vtx_frame_length);
       packets_sent++;
@@ -277,29 +252,50 @@ vtx_update_result_t serial_smart_audio_update() {
 
     return VTX_WAIT;
   }
-  case PARSER_READ_MAGIC: {
+  case PARSER_READ_MAGIC_1: {
     uint8_t data = 0;
     if (serial_vtx_read_byte(&data) == 0) {
       return VTX_WAIT;
     }
 
-    quic_debugf("SMART_AUDIO: magic 0x%x (%d)", data, payload_offset);
-
-    // ignore the first magic byte, because of the framing issues it will be garbage half ot the time
-    if (data != magic_bytes[payload_offset] && payload_offset != 0) {
-      quic_debugf("SMART_AUDIO: invalid magic (%d:0x%x)", payload_offset, data);
-      parser_state = ERROR;
-      return VTX_ERROR;
-    }
-    if (data == magic_bytes[payload_offset]) {
-      // only increment if we actually matched
-      payload_offset++;
+    if (data == 0x0) {
+      // skip leading zero
+      return VTX_WAIT;
     }
 
-    if (payload_offset == 2) {
-      // account for first (skipped) byte;
-      payload_offset++;
-      parser_state = PARSER_READ_PAYLOAD;
+    if (data != SA_MAGIC_1) {
+      quic_debugf("SMART_AUDIO: invalid magic 1 0x%x", data);
+      parser_state = PARSER_ERROR;
+    } else {
+      quic_debugf("SMART_AUDIO: got magic 1 0x%x", data);
+      parser_state = PARSER_READ_MAGIC_2;
+    }
+    return VTX_WAIT;
+  }
+  case PARSER_READ_MAGIC_2: {
+    uint8_t data = 0;
+    if (serial_vtx_read_byte(&data) == 0) {
+      return VTX_WAIT;
+    }
+
+    if (data != SA_MAGIC_2) {
+      quic_debugf("SMART_AUDIO: invalid magic 2 0x%x", data);
+      parser_state = PARSER_ERROR;
+    } else {
+      quic_debugf("SMART_AUDIO: got magic 2 0x%x", data);
+      parser_state = PARSER_READ_CMD;
+    }
+    return VTX_WAIT;
+  }
+  case PARSER_READ_CMD: {
+    if (serial_smart_audio_read_byte_crc(&crc, &cmd) == 1) {
+      parser_state = PARSER_READ_LENGTH;
+    }
+    return VTX_WAIT;
+  }
+  case PARSER_READ_LENGTH: {
+    if (serial_smart_audio_read_byte_crc(&crc, &length) == 1) {
+      parser_state = length ? PARSER_READ_PAYLOAD : PARSER_READ_CRC;
     }
     return VTX_WAIT;
   }
@@ -309,24 +305,13 @@ vtx_update_result_t serial_smart_audio_update() {
       return VTX_WAIT;
     }
 
-    if (payload_offset == 3) {
-      cmd = data;
-    }
-    if (payload_offset == 4) {
-      length = data;
-    }
-    if (payload_offset >= SA_HEADER_SIZE && (payload_offset - SA_HEADER_SIZE) < length) {
-      payload[payload_offset - SA_HEADER_SIZE] = data;
-    }
-
     quic_debugf("SMART_AUDIO: payload 0x%x (%d)", data, payload_offset);
+    payload[payload_offset] = data;
     payload_offset++;
 
-    // payload done, lets check crc
-    if (payload_offset >= SA_HEADER_SIZE && (payload_offset - SA_HEADER_SIZE) == length) {
+    if (payload_offset >= length) {
       parser_state = PARSER_READ_CRC;
     }
-
     return VTX_WAIT;
   }
   case PARSER_READ_CRC: {
@@ -337,7 +322,7 @@ vtx_update_result_t serial_smart_audio_update() {
 
     if (data != crc) {
       quic_debugf("SMART_AUDIO: invalid crc 0x%x vs 0x%x", crc, data);
-      parser_state = ERROR;
+      parser_state = PARSER_ERROR;
       return VTX_ERROR;
     }
 
@@ -347,7 +332,7 @@ vtx_update_result_t serial_smart_audio_update() {
       return VTX_SUCCESS;
     }
 
-    parser_state = ERROR;
+    parser_state = PARSER_ERROR;
     return VTX_ERROR;
   }
   }
@@ -371,7 +356,7 @@ void serial_smart_audio_send_payload(uint8_t cmd, const uint8_t *payload, const 
   for (uint8_t i = 0; i < size; i++) {
     vtx_frame[i + SA_HEADER_SIZE] = payload[i];
   }
-  vtx_frame[size + SA_HEADER_SIZE] = crc8_data(vtx_frame + 1, vtx_frame_length - 3);
+  vtx_frame[size + SA_HEADER_SIZE] = crc8_dvb_s2_data(0, vtx_frame + 1, vtx_frame_length - 3);
   vtx_frame[size + 1 + SA_HEADER_SIZE] = 0x00;
 
   smart_audio_auto_baud();

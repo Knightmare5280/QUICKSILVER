@@ -10,12 +10,10 @@
 
 #if defined(USE_SX128X)
 
-#define PORT spi_port_defs[SX12XX_SPI_PORT]
-
 static bool sx128x_poll_for_not_busy();
 
-static volatile uint8_t dma_buffer[1024];
-static volatile spi_bus_device_t bus = {
+static DMA_RAM uint8_t dma_buffer[1024];
+static spi_bus_device_t bus = {
     .port = SX12XX_SPI_PORT,
     .nss = SX12XX_NSS_PIN,
 
@@ -55,7 +53,7 @@ void sx128x_init() {
   exti_enable(SX12XX_DIO0_PIN, LL_EXTI_TRIGGER_RISING);
 
   spi_bus_device_init(&bus);
-  spi_bus_device_reconfigure(&bus, true, spi_find_divder(MHZ_TO_HZ(10.5)));
+  spi_bus_device_reconfigure(&bus, true, MHZ_TO_HZ(10));
 }
 
 void sx128x_reset() {

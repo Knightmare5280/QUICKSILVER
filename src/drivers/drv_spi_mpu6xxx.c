@@ -8,10 +8,26 @@
 #include "drv_time.h"
 #include "project.h"
 
+#define MPU6000_ID (0x68)
+#define MPU6500_ID (0x70)
+
+#define ICM20601_ID (0xAC)
+#define ICM20602_ID (0x12)
+#define ICM20608_ID (0xAF)
+#define ICM20649_ID (0xE1)
+#define ICM20689_ID (0x98)
+
 #define SPI_SPEED_INIT MHZ_TO_HZ(0.5)
 
-#define PORT spi_port_defs[GYRO_SPI_PORT]
+extern spi_bus_device_t gyro_bus;
 
+<<<<<<< HEAD
+static uint32_t mpu6xxx_fast_divider() {
+  switch (gyro_type) {
+  default:
+  case GYRO_TYPE_ICM20649:
+    return MHZ_TO_HZ(7);
+=======
 static void mpu6xxx_reinit_slow() {
   spi_dma_wait_for_ready(GYRO_SPI_PORT);
   LL_SPI_Disable(PORT.channel);
@@ -48,59 +64,98 @@ static void mpu6xxx_reinit_fast() {
   spi_init.ClockPhase = LL_SPI_PHASE_2EDGE;
   spi_init.NSS = LL_SPI_NSS_SOFT;
 
-  switch (GYRO_TYPE) {
-  case ICM20601:
-  case ICM20608:
-    spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(5.25));
+  switch (gyro_type) {
+  default:
+  case GYRO_TYPE_ICM20649:
+    spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(7));
+    break;
+>>>>>>> 53276eff (auto detect gyro type)
+
+  case GYRO_TYPE_ICM20601:
+  case GYRO_TYPE_ICM20608:
+  case GYRO_TYPE_ICM20689:
+<<<<<<< HEAD
+    return MHZ_TO_HZ(8);
+
+  case GYRO_TYPE_ICM20602:
+    return MHZ_TO_HZ(10.5);
+
+  case GYRO_TYPE_MPU6000:
+  case GYRO_TYPE_MPU6500:
+    return MHZ_TO_HZ(21);
+=======
+    spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(8));
     break;
 
-  case ICM20602:
+  case GYRO_TYPE_ICM20602:
     spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(10.5));
     break;
 
-  case MPU6XXX:
-  default:
+  case GYRO_TYPE_MPU6000:
+  case GYRO_TYPE_MPU6500:
     spi_init.BaudRate = spi_find_divder(MHZ_TO_HZ(21));
     break;
+>>>>>>> 53276eff (auto detect gyro type)
   }
 
-  spi_init.BitOrder = LL_SPI_MSB_FIRST;
-  spi_init.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
-  spi_init.CRCPoly = 7;
-  LL_SPI_Init(PORT.channel, &spi_init);
-
-  LL_SPI_Enable(PORT.channel);
+  return SPI_SPEED_INIT;
 }
 
-static void mpu6xxx_init() {
+uint8_t mpu6xxx_detect() {
+  time_delay_ms(100);
 
-  spi_init_pins(GYRO_SPI_PORT, GYRO_NSS);
-
-// Interrupt GPIO
-#ifdef GYRO_INT
-  LL_GPIO_InitTypeDef gpio_init;
-  gpio_init.Mode = LL_GPIO_MODE_INPUT;
-  gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpio_init.Pull = LL_GPIO_PULL_UP;
-  gpio_init.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpio_pin_init(&gpio_init, GYRO_INT);
-#endif
-
-  spi_enable_rcc(GYRO_SPI_PORT);
-
-  mpu6xxx_reinit_slow();
-
-  // Dummy read to clear receive buffer
-  while (LL_SPI_IsActiveFlag_TXE(PORT.channel) == RESET)
-    ;
-  LL_SPI_ReceiveData8(PORT.channel);
-
-  spi_dma_init(GYRO_SPI_PORT);
+  const uint8_t id = mpu6xxx_read(MPU_RA_WHO_AM_I);
+  switch (id) {
+  case MPU6000_ID:
+    return GYRO_TYPE_MPU6000;
+  case MPU6500_ID:
+    return GYRO_TYPE_MPU6500;
+  case ICM20601_ID:
+    return GYRO_TYPE_ICM20601;
+  case ICM20602_ID:
+    return GYRO_TYPE_ICM20602;
+  case ICM20608_ID:
+    return GYRO_TYPE_ICM20608;
+  case ICM20649_ID:
+    return GYRO_TYPE_ICM20649;
+  case ICM20689_ID:
+    return GYRO_TYPE_ICM20689;
+  default:
+    return GYRO_TYPE_INVALID;
+  }
 }
 
-uint8_t mpu6xxx_configure() {
+<<<<<<< HEAD
+void mpu6xxx_configure() {
+=======
+uint8_t mpu6xxx_detect() {
   mpu6xxx_init();
 
+  const uint8_t id = mpu6xxx_read(MPU_RA_WHO_AM_I);
+  switch (id) {
+  case MPU6000_ID:
+    return GYRO_TYPE_MPU6000;
+  case MPU6500_ID:
+    return GYRO_TYPE_MPU6500;
+  case ICM20601_ID:
+    return GYRO_TYPE_ICM20601;
+  case ICM20602_ID:
+    return GYRO_TYPE_ICM20602;
+  case ICM20608_ID:
+    return GYRO_TYPE_ICM20608;
+  case ICM20649_ID:
+    return GYRO_TYPE_ICM20649;
+  case ICM20689_ID:
+    return GYRO_TYPE_ICM20689;
+  default:
+    return GYRO_TYPE_INVALID;
+  }
+}
+
+void mpu6xxx_configure() {
+  mpu6xxx_init();
+
+>>>>>>> 53276eff (auto detect gyro type)
   mpu6xxx_write(MPU_RA_PWR_MGMT_1, MPU_BIT_H_RESET); // reg 107 soft reset  MPU_BIT_H_RESET
   time_delay_ms(100);
   mpu6xxx_write(MPU_RA_SIGNAL_PATH_RESET, MPU_RESET_SIGNAL_PATHWAYS);
@@ -121,49 +176,43 @@ uint8_t mpu6xxx_configure() {
   time_delay_us(1500);
   mpu6xxx_write(MPU_RA_INT_ENABLE, MPU_BIT_INT_STATUS_DATA); // reg 56 data ready enable interrupt to 1
   time_delay_us(1500);
-
-  return mpu6xxx_read(MPU_RA_WHO_AM_I);
 }
 
 // blocking dma read of a single register
 uint8_t mpu6xxx_read(uint8_t reg) {
-  mpu6xxx_reinit_slow();
+  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, SPI_SPEED_INIT);
 
   uint8_t buffer[2] = {reg | 0x80, 0x00};
 
-  spi_csn_enable(GYRO_NSS);
-  spi_dma_transfer_bytes(GYRO_SPI_PORT, buffer, 2);
-  spi_csn_disable(GYRO_NSS);
+  spi_txn_t *txn = spi_txn_init(&gyro_bus, NULL);
+  spi_txn_add_seg(txn, buffer, buffer, 2);
+  spi_txn_submit(txn);
+
+  spi_txn_continue_ex(&gyro_bus, true);
+  spi_txn_wait(&gyro_bus);
 
   return buffer[1];
 }
 
 // blocking dma write of a single register
 void mpu6xxx_write(uint8_t reg, uint8_t data) {
-  mpu6xxx_reinit_slow();
+  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, SPI_SPEED_INIT);
 
-  uint8_t buffer[2] = {reg, data};
+  spi_txn_t *txn = spi_txn_init(&gyro_bus, NULL);
+  spi_txn_add_seg_const(txn, reg);
+  spi_txn_add_seg_const(txn, data);
+  spi_txn_submit(txn);
 
-  spi_csn_enable(GYRO_NSS);
-  spi_dma_transfer_bytes(GYRO_SPI_PORT, buffer, 2);
-  spi_csn_disable(GYRO_NSS);
+  spi_txn_wait(&gyro_bus);
 }
 
 void mpu6xxx_read_data(uint8_t reg, uint8_t *data, uint32_t size) {
-  mpu6xxx_reinit_fast();
+  spi_bus_device_reconfigure(&gyro_bus, SPI_MODE_TRAILING_EDGE, mpu6xxx_fast_divider());
 
-  uint8_t buffer[size + 1];
+  spi_txn_t *txn = spi_txn_init(&gyro_bus, NULL);
+  spi_txn_add_seg_const(txn, reg | 0x80);
+  spi_txn_add_seg(txn, data, NULL, size);
+  spi_txn_submit(txn);
 
-  buffer[0] = reg | 0x80;
-  for (uint32_t i = 0; i < size; i++) {
-    buffer[i + 1] = 0x0;
-  }
-
-  spi_csn_enable(GYRO_NSS);
-  spi_dma_transfer_bytes(GYRO_SPI_PORT, buffer, size + 1);
-  spi_csn_disable(GYRO_NSS);
-
-  for (int i = 1; i < size + 1; i++) {
-    data[i - 1] = buffer[i];
-  }
+  spi_txn_wait(&gyro_bus);
 }
