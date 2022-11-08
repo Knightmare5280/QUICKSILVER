@@ -53,13 +53,13 @@
 #define BF_EXPO_YAW 0.40
 
 // ******************** ACTUAL_RATES ********************
-#define ACTUAL_CENTER_SENS_ROLL 70
-#define ACTUAL_CENTER_SENS_PITCH 70
-#define ACTUAL_CENTER_SENS_YAW 70
+#define ACTUAL_CENTER_SENS_ROLL 110
+#define ACTUAL_CENTER_SENS_PITCH 110
+#define ACTUAL_CENTER_SENS_YAW 110
 
-#define ACTUAL_MAX_RATE_ROLL 670.0
-#define ACTUAL_MAX_RATE_PITCH 670.0
-#define ACTUAL_MAX_RATE_YAW 670.0
+#define ACTUAL_MAX_RATE_ROLL 990.0
+#define ACTUAL_MAX_RATE_PITCH 990.0
+#define ACTUAL_MAX_RATE_YAW 990.0
 
 #define ACTUAL_EXPO_ROLL 0.0
 #define ACTUAL_EXPO_PITCH 0.0
@@ -88,7 +88,7 @@
 //#define RX_SBUS
 //#define RX_CRSF
 //#define RX_IBUS
-//#define RX_FPORT
+#define RX_FPORT
 //#define RX_DSMX
 //#define RX_DSM2
 //#define RX_BAYANG_PROTOCOL_BLE_BEACON
@@ -194,7 +194,7 @@
 // GYRO FILTER PASS 1 CUTOFF FREQUENCY
 #define GYRO_FREQ_PASS1 90
 // GYRO FILTER PASS 2 CUTOFF FREQUENCY
-#define GYRO_FREQ_PASS2 90
+#define GYRO_FREQ_PASS2 320
 
 // Dynamic D term filter
 // a pt1 filter that moves up in cut hz with a parabolic relationship to applied throttle.  The theory here is
@@ -229,7 +229,7 @@
 // *************brushed motor minimum idle percent / dshot digital idle
 // IDLE_OFFSET is added to the throttle. Adjust its value so that the motors
 // still spin at minimum throttle.
-#define DIGITAL_IDLE 4.5
+#define DIGITAL_IDLE 6.0
 
 // *************limits the maxium power applied to the motors
 #define MOTOR_LIMIT 100.0
@@ -263,7 +263,7 @@
 //#define MIX_THROTTLE_REDUCTION_PERCENT 10
 //#define MIX_THROTTLE_INCREASE_MAX 0.2f
 //#define MIX_THROTTLE_REDUCTION_MAX 0.5f
-//#define BRUSHLESS_MIX_SCALING
+#define BRUSHLESS_MIX_SCALING
 
 // *************BRUSHLESS TARGET MIXER SETTINGS
 // *************AIRMODE_STRENGTH is the amount of authority AIRMODE is given over throttle
@@ -305,7 +305,7 @@
 // *************Comment out to disable pid tuning gestures - originally created by SilverAG
 #define PID_GESTURE_TUNING
 // *************Comment out to adjust each axis individually - otherwise they move at the same time
-#define COMBINE_PITCH_ROLL_PID_TUNING
+//#define COMBINE_PITCH_ROLL_PID_TUNING
 // *************Feel free to change 1.0 value to your liking
 #define PID_TUNING_ADJUST_AMOUNT 1.0 // fixed inc/dec values for PID tuning
 
