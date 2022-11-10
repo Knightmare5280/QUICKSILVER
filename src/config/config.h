@@ -260,7 +260,7 @@
 // *************MIX_THROTTLE_REDUCTION_PERCENT reduces thrust imbalances by reducing throttle proportionally to the adjustable reduction percent to the limit set by MIX_THROTTLE_REDUCTION_MAX
 // *************MIX_THROTTLE_INCREASE_MAX increases the authority of the pid controller at lowest throttle values like airmode when combined with idle up
 // *************BRUSHLESS_MIX_SCALING define disables the default brushed mixer and applies the default brushless mixer
-#define MIX_THROTTLE_REDUCTION_PERCENT 10
+#define MIX_THROTTLE_REDUCTION_PERCENT 15
 #define MIX_THROTTLE_INCREASE_MAX 0.2f
 #define MIX_THROTTLE_REDUCTION_MAX 0.5f
 #define BRUSHLESS_MIX_SCALING
