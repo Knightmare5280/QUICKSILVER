@@ -85,7 +85,7 @@
 
 // *************Receiver protocol selection
 
-//#define RX_SBUS
+#define RX_SBUS
 //#define RX_CRSF
 //#define RX_IBUS
 #define RX_FPORT
@@ -136,10 +136,10 @@
 #define RSSI AUX_CHANNEL_OFF
 // *************switch for fpv / other, requires fet
 // *************comment out to disable
-#define FPV_SWITCH AUX_CHANNEL_ON
+//#define FPV_SWITCH AUX_CHANNEL_ON
 
 // *************RRD/LLD stick gesture aux start up state.  Gesture aux is AUX_CHANNEL_GESTURE
-//#define GESTURE_AUX_START_ON
+#define GESTURE_AUX_START_ON
 
 //**********************************************************************************************************************
 //***********************************************VOLTAGE SETTINGS*******************************************************
@@ -169,7 +169,7 @@
 #define LVC_LOWER_THROTTLE_KP 3.0
 
 // *************voltage/cell to start warning led blinking
-#define VBATTLOW 3.3
+#define VBATTLOW 3.5
 
 // *************voltage hysteresis in volts
 #define HYST 0.10
@@ -251,7 +251,7 @@
 // *************pwm frequency for motor control
 // *************a higher frequency makes the motors more linear
 // *************in Hz
-#define PWMFREQ 32000
+#define PWMFREQ 48000
 
 // *************throttle angle compensation in level mode
 //#define AUTO_THROTTLE
@@ -260,22 +260,22 @@
 // *************MIX_THROTTLE_REDUCTION_PERCENT reduces thrust imbalances by reducing throttle proportionally to the adjustable reduction percent to the limit set by MIX_THROTTLE_REDUCTION_MAX
 // *************MIX_THROTTLE_INCREASE_MAX increases the authority of the pid controller at lowest throttle values like airmode when combined with idle up
 // *************BRUSHLESS_MIX_SCALING define disables the default brushed mixer and applies the default brushless mixer
-//#define MIX_THROTTLE_REDUCTION_PERCENT 10
-//#define MIX_THROTTLE_INCREASE_MAX 0.2f
-//#define MIX_THROTTLE_REDUCTION_MAX 0.5f
+#define MIX_THROTTLE_REDUCTION_PERCENT 10
+#define MIX_THROTTLE_INCREASE_MAX 0.2f
+#define MIX_THROTTLE_REDUCTION_MAX 0.5f
 #define BRUSHLESS_MIX_SCALING
 
 // *************BRUSHLESS TARGET MIXER SETTINGS
 // *************AIRMODE_STRENGTH is the amount of authority AIRMODE is given over throttle
 // *************Decrease CLIPPING_LIMIT to force clipping in place of mix scaling to
 // *************restore lost power on "promblem quads" by allowing some thrust imbalances to pass through the mixer
-//	#define AIRMODE_STRENGTH  1.0f
-//	#define CLIPPING_LIMIT  1.0f
+  #define AIRMODE_STRENGTH  1.5f
+	#define CLIPPING_LIMIT  1.2f
 
 //**************I-term relax.  Removes roll and pitch bounce back after flips
 #define ITERM_RELAX
 #define RELAX_FACTOR_DEG 5.7
-#define RELAX_FREQUENCY_HZ 20 // from my experience the frequency is better to tune than the factor
+#define RELAX_FREQUENCY_HZ 30 // from my experience the frequency is better to tune than the factor
 
 #define ITERM_RELAX_YAW // adds iterm relax to yaw with its own values as it responds much different
 #define RELAX_FACTOR_YAW_DEG 5.7
