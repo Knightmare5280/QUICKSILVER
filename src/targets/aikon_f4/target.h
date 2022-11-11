@@ -1,4 +1,7 @@
 #include "config.h"
+#include "config_helper.h"
+
+#define Aikon_F4
 
 // PORTS
 #define SPI_PORTS   \
@@ -24,16 +27,26 @@
 //#define FPV_PORT GPIOA
 
 // GYRO
+#define GYRO_TYPE ICM20602
 #define GYRO_SPI_PORT SPI_PORT1
 #define GYRO_NSS PIN_A4
 #define GYRO_INT PIN_C4
-#define GYRO_ORIENTATION GYRO_ROTATE_90_CW
+
+#define GYRO_ID_1 0x12
+#define GYRO_ID_2 0xaf
+#define GYRO_ID_3 0xac
+#define GYRO_ID_4 0x98
+#define SENSOR_ROTATE_90_CW
 
 // RADIO
 #define USART1_INVERTER_PIN PIN_C0
 
+#ifdef SERIAL_RX
+#define RX_USART USART_PORT1
+#endif
+
 // OSD
-#define USE_MAX7456
+#define ENABLE_OSD
 #define MAX7456_SPI_PORT SPI_PORT3
 #define MAX7456_NSS PIN_A15
 

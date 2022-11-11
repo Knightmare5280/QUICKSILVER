@@ -1,4 +1,7 @@
 #include "config.h"
+#include "config_helper.h"
+
+#define MatekF765SE
 
 // PORTS
 #define SPI_PORTS   \
@@ -25,13 +28,22 @@
 #define BUZZER_INVERT
 
 // GYRO
+#define GYRO_TYPE ICM42605
 #define GYRO_SPI_PORT SPI_PORT4
 #define GYRO_NSS PIN_E11
 #define GYRO_INT PIN_C13
-#define GYRO_ORIENTATION (GYRO_ROTATE_90_CW | GYRO_FLIP_180)
+#define SENSOR_FLIP_180
+#define SENSOR_ROTATE_90_CW
+#define GYRO_ID_1 0x47
+
+// RADIO
+#define SOFTSPI_NONE
+#ifdef SERIAL_RX
+#define RX_USART USART_PORT1
+#endif
 
 // OSD
-#define USE_MAX7456
+#define ENABLE_OSD
 #define MAX7456_SPI_PORT SPI_PORT2
 #define MAX7456_NSS PIN_B12
 

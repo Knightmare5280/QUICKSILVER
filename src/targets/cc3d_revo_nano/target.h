@@ -1,4 +1,7 @@
 #include "config.h"
+#include "config_helper.h"
+
+#define CC3D_Revo_Nano
 
 // PORTS
 #define SPI_PORTS   \
@@ -22,13 +25,23 @@
 #define FPV_PIN PIN_A13
 
 // GYRO
+#define GYRO_TYPE MPU6XXX
 #define GYRO_SPI_PORT SPI_PORT2
 #define GYRO_NSS PIN_B12
 #define GYRO_INT PIN_A15
-#define GYRO_ORIENTATION GYRO_ROTATE_180
+#define SENSOR_ROTATE_180
+#define GYRO_ID_1 0x68
+#define GYRO_ID_2 0x73
+#define GYRO_ID_3 0x78
+#define GYRO_ID_4 0x71
+//#define DISABLE_GYRO_CHECK
 
 // RADIO
 #define USART2_INVERTER_PIN PIN_C15
+
+#ifdef SERIAL_RX
+#define RX_USART USART_PORT2
+#endif
 
 // VOLTAGE DIVIDER
 #define VBAT_PIN PIN_A6

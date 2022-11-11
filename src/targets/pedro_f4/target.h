@@ -1,4 +1,7 @@
 #include "config.h"
+#include "config_helper.h"
+
+#define PedroF4
 
 // PORTS
 #define SPI_PORTS   \
@@ -9,9 +12,6 @@
 #define USART_PORTS \
   USART3_PB11PB10   \
   USART4_PA1PA0
-
-#define DEBUG_PIN0 PIN_A9
-#define DEBUG_PIN1 PIN_A10
 
 //#define USB_DETECT_PIN LL_GPIO_PIN_5
 //#define USB_DETECT_PORT GPIOC
@@ -26,32 +26,33 @@
 //#define FPV_PORT GPIOA
 
 // GYRO
+#define GYRO_TYPE MPU6XXX
 #define GYRO_SPI_PORT SPI_PORT1
 #define GYRO_NSS PIN_A4
 #define GYRO_INT PIN_C4
-#define GYRO_ORIENTATION GYRO_ROTATE_90_CCW
+#define GYRO_ID_1 0x68
+#define GYRO_ID_2 0x73
+#define GYRO_ID_3 0x78
+#define GYRO_ID_4 0x71
+#define SENSOR_ROTATE_90_CCW
 
 // RADIO
 //#define USART_INVERTER_PIN LL_GPIO_PIN_0 //UART 1
 //#define USART_INVERTER_PORT GPIOC
 #ifdef SERIAL_RX
-//#define RX_USART USART_PORT1
+#define RX_USART USART_PORT1
 #endif
 
-/*
 // OSD
-#define USE_MAX7456
-#define MAX7456_SPI_PORT SPI_PORT3
-#define MAX7456_NSS PIN_A15
+//#define ENABLE_OSD
+//#define MAX7456_SPI_PORT SPI_PORT3
+//#define MAX7456_NSS PIN_A15
 
 // SDCARD
+/*
 #define USE_SDCARD
 #define SDCARD_SPI_PORT SPI_PORT3
 #define SDCARD_NSS_PIN PIN_A15
-
-#define USE_M25P16
-#define M25P16_SPI_PORT SPI_PORT3
-#define M25P16_NSS_PIN PIN_A15
 */
 
 #define USE_SX128X

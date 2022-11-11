@@ -1,4 +1,7 @@
 #include "config.h"
+#include "config_helper.h"
+
+#define BluejayF4
 
 // PORTS
 #define SPI_PORTS \
@@ -21,13 +24,22 @@
 #define FPV_PIN PIN_A13
 
 // GYRO
+#define GYRO_TYPE ICM20608
 #define GYRO_SPI_PORT SPI_PORT1
 #define GYRO_NSS PIN_C4
 #define GYRO_INT PIN_C5
-#define GYRO_ORIENTATION GYRO_ROTATE_90_CW
+#define GYRO_ID_1 0xAF
+#define GYRO_ID_2 0x73
+#define GYRO_ID_3 0x78
+#define GYRO_ID_4 0x71
+#define SENSOR_ROTATE_90_CW
 
 // RADIO
 #define USART6_INVERTER_PIN PIN_B15
+
+#ifdef SERIAL_RX
+#define RX_USART USART_PORT1
+#endif
 
 // OSD
 // not supported by fc

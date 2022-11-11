@@ -1,4 +1,5 @@
-#include "drv_spi_soft.h"
+#include "drv_spi.h"
+
 #include "project.h"
 
 #ifdef USE_SOFT_SPI_4WIRE

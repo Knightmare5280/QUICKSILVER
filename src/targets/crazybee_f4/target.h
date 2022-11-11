@@ -1,4 +1,7 @@
 #include "config.h"
+#include "config_helper.h"
+
+#define CrazyBee_F4
 
 // PORTS
 #define SPI_PORTS   \
@@ -20,12 +23,41 @@
 //#define FPV_PORT GPIOA
 
 // GYRO
+#define GYRO_TYPE MPU6XXX
 #define GYRO_SPI_PORT SPI_PORT1
 #define GYRO_NSS PIN_A4
 #define GYRO_INT PIN_A1
+#define GYRO_ID_1 0x68
+#define GYRO_ID_2 0x73
+#define GYRO_ID_3 0x78
+#define GYRO_ID_4 0x71
+
+// RADIO
+#ifdef RX_FRSKY
+#define USE_CC2500
+#define CC2500_SPI_PORT SPI_PORT3
+#define CC2500_NSS PIN_A15
+#define CC2500_GDO0_PIN PIN_C14
+#endif
+
+#ifdef RX_EXPRESS_LRS
+#define USE_SX128X
+#define USE_SX128X_BUSY_EXTI
+#define SX12XX_SPI_PORT SPI_PORT3
+#define SX12XX_NSS_PIN PIN_A15
+#define SX12XX_DIO0_PIN PIN_C14
+#define SX12XX_BUSY_PIN PIN_A13
+#define SX12XX_RESET_PIN PIN_A8
+
+#define SOFTSPI_NONE
+#endif
+
+#ifdef SERIAL_RX
+#define RX_USART USART_PORT2
+#endif
 
 // OSD
-#define USE_MAX7456
+#define ENABLE_OSD
 #define MAX7456_SPI_PORT SPI_PORT2
 #define MAX7456_NSS PIN_B12
 

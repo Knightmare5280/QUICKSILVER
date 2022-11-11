@@ -1,6 +1,9 @@
 #include "config.h"
+#include "config_helper.h"
 
-// PORTS
+#define Alienwhoop_V2
+
+//PORTS
 #define SPI_PORTS   \
   SPI1_PA5PA6PA7    \
   SPI2_PB13PB14PB15 \
@@ -10,7 +13,7 @@
   USART2_PA3PA2     \
   USART3_PC11PC10
 
-// LEDS
+//LEDS
 #define LED_NUMBER 2
 #define LED1PIN PIN_C12
 #define LED2PIN PIN_D2
@@ -19,17 +22,27 @@
 #define BUZZER_INVERT
 #define FPV_PIN PIN_A13
 
-// GYRO
+//GYRO
+#define GYRO_TYPE MPU6XXX
 #define GYRO_SPI_PORT SPI_PORT1
 #define GYRO_NSS PIN_A4
 #define GYRO_INT PIN_C4
-#define GYRO_ORIENTATION GYRO_ROTATE_90_CW
+#define GYRO_ID_1 0x70
+#define GYRO_ID_2 0x73
+#define GYRO_ID_3 0x71
+#define GYRO_ID_4 0x72
+#define SENSOR_ROTATE_90_CW
 
 #define USE_M25P16
 #define M25P16_SPI_PORT SPI_PORT3
 #define M25P16_NSS_PIN PIN_A15
 
-// VOLTAGE DIVIDER
+//RADIO
+#ifdef SERIAL_RX
+#define RX_USART USART_PORT2
+#endif
+
+//VOLTAGE DIVIDER
 #define DISABLE_ADC
 
 // MOTOR PINS

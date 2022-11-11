@@ -1,4 +1,7 @@
 #include "config.h"
+#include "config_helper.h"
+
+#define iFlightF745AIOv2
 
 // PORTS
 #define SPI_PORTS   \
@@ -24,13 +27,20 @@
 #define BUZZER_INVERT
 
 // GYRO
+#define GYRO_TYPE BMI270
 #define GYRO_SPI_PORT SPI_PORT1
 #define GYRO_NSS PIN_A4
 #define GYRO_INT PIN_D0
-#define GYRO_ORIENTATION (GYRO_ROTATE_90_CCW | GYRO_ROTATE_45_CCW)
+#define SENSOR_ROTATE_135_CW
+#define GYRO_ID_1 0x24
+
+// RADIO
+#ifdef SERIAL_RX
+#define RX_USART USART_PORT1
+#endif
 
 // OSD
-#define USE_MAX7456
+#define ENABLE_OSD
 #define MAX7456_SPI_PORT SPI_PORT4
 #define MAX7456_NSS PIN_E4
 

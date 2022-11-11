@@ -68,7 +68,6 @@ static msp_t msp = {
     .buffer_size = 128,
     .buffer_offset = 0,
     .send = serial_msp_send,
-    .is_vtx = true,
 };
 
 void serial_msp_vtx_init() {
@@ -109,7 +108,6 @@ void serial_msp_vtx_init() {
   serial_enable_isr(serial_smart_audio_port);
 
   msp_vtx = &msp;
-  vtx_last_valid_read = time_millis();
 }
 
 vtx_update_result_t serial_msp_vtx_update() {
@@ -155,7 +153,6 @@ vtx_update_result_t serial_msp_vtx_update() {
 
   if ((in_progress || is_first_packet) && (time_millis() - vtx_last_valid_read) > 500) {
     quic_debugf("MSP_VTX: timeout waiting for packet");
-    vtx_last_valid_read = time_millis();
     return VTX_ERROR;
   }
 

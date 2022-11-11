@@ -26,7 +26,7 @@ static gyro_types_t gyro_spi_detect() {
   case GYRO_TYPE_MPU6500:
   case GYRO_TYPE_ICM20601:
   case GYRO_TYPE_ICM20602:
-  case GYRO_TYPE_ICM20608:
+  //case GYRO_TYPE_ICM20608:
   case GYRO_TYPE_ICM20649:
   case GYRO_TYPE_ICM20689:
     type = mpu6xxx_detect();
