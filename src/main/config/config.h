@@ -79,11 +79,11 @@
 
 // *************Receiver protocol selection
 
-#define RX_UNIFIED_SERIAL
+//#define RX_UNIFIED_SERIAL
 //#define RX_SBUS
 //#define RX_CRSF
 //#define RX_IBUS
-//#define RX_FPORT
+#define RX_FPORT
 //#define RX_DSMX
 //#define RX_DSM2
 //#define RX_BAYANG_PROTOCOL_BLE_BEACON
@@ -98,7 +98,7 @@
 
 // *************Serial Receiver UART Selection (uncomment all for default from target or if using spi receiver)																		//todo:  Many missing usart AF setups, So plenty more to do here
 //#define RX_USART USART_PORT1
-//#define RX_USART USART_PORT2
+#define RX_USART USART_PORT2
 //#define RX_USART USART_PORT3
 //#define RX_USART USART_PORT4
 //#define RX_USART USART_PORT6
@@ -145,7 +145,7 @@
 //#define DISABLE_ADC
 
 // ************* Set your lipo cell count to override auto cell count detect logic
-//#define LIPO_CELL_COUNT 1
+#define LIPO_CELL_COUNT 4
 
 // ************* Raises pids automatically as battery voltage drops in flight.  **CRITICAL** Ensure voltage is calibrated before use.
 #define PID_VOLTAGE_COMPENSATION
@@ -165,7 +165,7 @@
 #define LVC_LOWER_THROTTLE_KP 3.0
 
 // *************voltage/cell to start warning led blinking
-#define VBATTLOW 3.3
+#define VBATTLOW 3.5
 
 // *************voltage hysteresis in volts
 #define HYST 0.10
@@ -256,19 +256,19 @@
 //#define MIX_THROTTLE_REDUCTION_PERCENT 10
 //#define MIX_THROTTLE_INCREASE_MAX 0.2f
 //#define MIX_THROTTLE_REDUCTION_MAX 0.5f
-//#define BRUSHLESS_MIX_SCALING
+#define BRUSHLESS_MIX_SCALING
 
 // *************BRUSHLESS TARGET MIXER SETTINGS
 // *************AIRMODE_STRENGTH is the amount of authority AIRMODE is given over throttle
 // *************Decrease CLIPPING_LIMIT to force clipping in place of mix scaling to
 // *************restore lost power on "promblem quads" by allowing some thrust imbalances to pass through the mixer
 //	#define AIRMODE_STRENGTH  1.0f
-//	#define CLIPPING_LIMIT  1.0f
+	#define CLIPPING_LIMIT  0.8f
 
 //**************I-term relax.  Removes roll and pitch bounce back after flips
 #define I_TERM_RELAX
 //#define RELAX_FACTOR 10
-//#define RELAX_FREQUENCY_HZ 20
+#define RELAX_FREQUENCY_HZ 20
 
 //**********************************************************************************************************************
 //***********************************************ADDITIONAL FEATURES****************************************************
@@ -284,7 +284,7 @@
 // *************Comment out to disable pid tuning gestures - originally created by SilverAG
 #define PID_GESTURE_TUNING
 // *************Comment out to adjust each axis individually - otherwise they move at the same time
-#define COMBINE_PITCH_ROLL_PID_TUNING
+//#define COMBINE_PITCH_ROLL_PID_TUNING
 // *************Feel free to change 1.0 value to your liking
 #define PID_TUNING_ADJUST_AMOUNT 1.0 // fixed inc/dec values for PID tuning
 

@@ -150,7 +150,7 @@ void resetPidProfile(pidProfile_t *pidProfile) {
     .setPointDTransition[ROLL] = 110,
     .setPointDTransition[PITCH] = 110,
     .setPointDTransition[YAW] = 130,
-    .feathered_pids = 100,
+    .feathered_pids = 50,
     .i_decay = 4,
     .i_decay_cutoff = 200,                   // value of 0 mimicks old i_decay behaviour
     .errorBoost = 15,
@@ -186,7 +186,7 @@ void resetPidProfile(pidProfile_t *pidProfile) {
     .axis_lock_multiplier = 0,
     .linear_thrust_low_output = 65,
     .linear_thrust_high_output = 0,
-    .linear_throttle = false,
+    .linear_throttle = true,
     .mixer_impl = MIXER_IMPL_2PASS,
     .mixer_laziness = false,
     .mixer_yaw_throttle_comp = true,
