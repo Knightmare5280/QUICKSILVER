@@ -1,0 +1,231 @@
+/**
+  ******************************************************************************
+  * @file      startup_stm32f40xx.s
+  * @author    MCD Application Team
+  * @version   V1.1.0
+  * @date      11-January-2013
+  * @brief     STM32F40xx/41xx Devices vector table for Atollic TrueSTUDIO toolchain.   
+  *            This module performs:
+  *                - Set the initial SP
+  *                - Set the initial PC == Reset_Handler,
+  *                - Set the vector table entries with the exceptions ISR address
+  *                - Configure the clock system and the external SRAM mounted on 
+  *                  STM324xG-EVAL board to be used as data memory (optional, 
+  *                  to be enabled by user)
+  *                - Branches to main in the C library (which eventually
+  *                  calls main()).
+  *            After Reset the Cortex-M4 processor is in Thread mode,
+  *            priority is Privileged, and the Stack is set to Main.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+    
+  .syntax unified
+  .cpu cortex-m4
+  .fpu softvfp
+  .thumb
+
+.global  g_pfnVectors
+
+/* start address for the initialization values of the .data section. 
+defined in linker script */
+.word  _sidata
+/* start address for the .data section. defined in linker script */  
+.word  _sdata
+/* end address for the .data section. defined in linker script */
+.word  _edata
+/* start address for the .bss section. defined in linker script */
+.word  _sbss
+/* end address for the .bss section. defined in linker script */
+.word  _ebss
+/* stack used for SystemInit_ExtMemCtl; always internal RAM used */
+
+/**
+ * @brief  This is the code that gets called when the processor first
+ *          starts execution following a reset event. Only the absolutely
+ *          necessary set is performed, after which the application
+ *          supplied main() routine is called. 
+ * @param  None
+ * @retval : None
+*/
+
+  .section  .text.Reset_Handler
+  .weak  Reset_Handler
+  .type  Reset_Handler, %function
+Reset_Handler: 
+  ldr   sp, =_estack    /* Atollic update: set stack pointer */
+
+/* Copy the data segment initializers from flash to SRAM */  
+  movs  r1, #0
+  b  LoopCopyDataInit
+
+CopyDataInit:
+  ldr  r3, =_sidata
+  ldr  r3, [r3, r1]
+  str  r3, [r0, r1]
+  adds  r1, r1, #4
+    
+LoopCopyDataInit:
+  ldr  r0, =_sdata
+  ldr  r3, =_edata
+  adds  r2, r0, r1
+  cmp  r2, r3
+  bcc  CopyDataInit
+  ldr  r2, =_sbss
+  b  LoopFillZerobss
+/* Zero fill the bss segment. */  
+FillZerobss:
+  movs  r3, #0
+  str  r3, [r2], #4
+    
+LoopFillZerobss:
+  ldr  r3, = _ebss
+  cmp  r2, r3
+  bcc  FillZerobss
+
+  bl system_check_for_bootloader
+/* Call the clock system initialization function.*/
+  bl  SystemInit   
+/* Call static constructors */
+  bl __libc_init_array
+/* Call the application's entry point.*/
+  bl  memory_section_init
+  bl  main
+  bx  lr   
+.size  Reset_Handler, .-Reset_Handler
+
+/******************************************************************************
+*
+* The minimal vector table for a Cortex M4. Note that the proper constructs
+* must be placed on this to ensure that it ends up at physical address
+* 0x0000.0000.
+* 
+*******************************************************************************/
+  .section  .isr_vector,"a",%progbits
+  .type  g_pfnVectors, %object
+  .size  g_pfnVectors, .-g_pfnVectors
+    
+
+g_pfnVectors:
+  .word  _estack
+  .word  Reset_Handler
+  .word  NMI_Handler
+  .word  HardFault_Handler
+  .word  MemManage_Handler
+  .word  BusFault_Handler
+  .word  UsageFault_Handler
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  SVC_Handler
+  .word  DebugMon_Handler
+  .word  0
+  .word  PendSV_Handler
+  .word  SysTick_Handler
+  
+  /* External Interrupts */
+  .word     WWDG_IRQHandler                   /* Window WatchDog              */                                        
+  .word     PVD_IRQHandler                    /* PVD through EXTI Line detection */                        
+  .word     TAMP_STAMP_IRQHandler             /* Tamper and TimeStamps through the EXTI line */            
+  .word     RTC_WKUP_IRQHandler               /* RTC Wakeup through the EXTI line */                      
+  .word     FLASH_IRQHandler                  /* FLASH                        */                                          
+  .word     RCC_IRQHandler                    /* RCC                          */                                            
+  .word     EXTI0_IRQHandler                  /* EXTI Line0                   */                        
+  .word     EXTI1_IRQHandler                  /* EXTI Line1                   */                          
+  .word     EXTI2_IRQHandler                  /* EXTI Line2                   */                          
+  .word     EXTI3_IRQHandler                  /* EXTI Line3                   */                          
+  .word     EXTI4_IRQHandler                  /* EXTI Line4                   */                          
+  .word     DMA1_Stream0_IRQHandler           /* DMA1 Stream 0                */                  
+  .word     DMA1_Stream1_IRQHandler           /* DMA1 Stream 1                */                   
+  .word     DMA1_Stream2_IRQHandler           /* DMA1 Stream 2                */                   
+  .word     DMA1_Stream3_IRQHandler           /* DMA1 Stream 3                */                   
+  .word     DMA1_Stream4_IRQHandler           /* DMA1 Stream 4                */                   
+  .word     DMA1_Stream5_IRQHandler           /* DMA1 Stream 5                */                   
+  .word     DMA1_Stream6_IRQHandler           /* DMA1 Stream 6                */                   
+  .word     ADC_IRQHandler                    /* ADC1, ADC2 and ADC3s         */
+  .word     0                /* CAN1 TX                      */
+  .word     0               /* CAN1 RX0                     */
+  .word     0               /* CAN1 RX1                     */
+  .word     0               /* CAN1 SCE                     */
+  .word     EXTI9_5_IRQHandler                /* External Line[9:5]s          */                          
+  .word     TIM1_BRK_TIM9_IRQHandler          /* TIM1 Break and TIM9          */         
+  .word     TIM1_UP_TIM10_IRQHandler          /* TIM1 Update and TIM10        */         
+  .word     TIM1_TRG_COM_TIM11_IRQHandler     /* TIM1 Trigger and Commutation and TIM11 */
+  .word     TIM1_CC_IRQHandler                /* TIM1 Capture Compare         */                          
+  .word     TIM2_IRQHandler                   /* TIM2                         */                   
+  .word     TIM3_IRQHandler                   /* TIM3                         */                   
+  .word     TIM4_IRQHandler                   /* TIM4                         */                   
+  .word     I2C1_EV_IRQHandler                /* I2C1 Event                   */                          
+  .word     I2C1_ER_IRQHandler                /* I2C1 Error                   */                          
+  .word     I2C2_EV_IRQHandler                /* I2C2 Event                   */                          
+  .word     I2C2_ER_IRQHandler                /* I2C2 Error                   */                            
+  .word     SPI1_IRQHandler                   /* SPI1                         */                   
+  .word     SPI2_IRQHandler                   /* SPI2                         */                   
+  .word     USART1_IRQHandler                 /* USART1                       */                   
+  .word     USART2_IRQHandler                 /* USART2                       */                   
+  .word     0                 /* USART3                       */
+  .word     EXTI15_10_IRQHandler              /* External Line[15:10]s        */                          
+  .word     RTC_Alarm_IRQHandler              /* RTC Alarm (A and B) through EXTI Line */                 
+  .word     OTG_FS_WKUP_IRQHandler            /* USB OTG FS Wakeup through EXTI line */                       
+  .word     0         /* TIM8 Break and TIM12         */
+  .word     0          /* TIM8 Update and TIM13        */
+  .word     0     /* TIM8 Trigger and Commutation and TIM14 */
+  .word     0                /* TIM8 Capture Compare         */
+  .word     DMA1_Stream7_IRQHandler           /* DMA1 Stream7                 */                          
+  .word     0                   /* FSMC                         */
+  .word     SDIO_IRQHandler                   /* SDIO                         */                   
+  .word     TIM5_IRQHandler                   /* TIM5                         */                   
+  .word     SPI3_IRQHandler                   /* SPI3                         */                   
+  .word     0                  /* UART4                        */
+  .word     0                  /* UART5                        */
+  .word     0               /* TIM6 and DAC1&2 underrun errors */
+  .word     0                   /* TIM7                         */
+  .word     DMA2_Stream0_IRQHandler           /* DMA2 Stream 0                */                   
+  .word     DMA2_Stream1_IRQHandler           /* DMA2 Stream 1                */                   
+  .word     DMA2_Stream2_IRQHandler           /* DMA2 Stream 2                */                   
+  .word     DMA2_Stream3_IRQHandler           /* DMA2 Stream 3                */                   
+  .word     DMA2_Stream4_IRQHandler           /* DMA2 Stream 4                */                   
+  .word     0                    /* Ethernet                     */
+  .word     0               /* Ethernet Wakeup through EXTI line */
+  .word     0                /* CAN2 TX                      */
+  .word     0               /* CAN2 RX0                     */
+  .word     0               /* CAN2 RX1                     */
+  .word     0               /* CAN2 SCE                     */
+  .word     OTG_FS_IRQHandler                 /* USB OTG FS                   */                   
+  .word     DMA2_Stream5_IRQHandler           /* DMA2 Stream 5                */                   
+  .word     DMA2_Stream6_IRQHandler           /* DMA2 Stream 6                */                   
+  .word     DMA2_Stream7_IRQHandler           /* DMA2 Stream 7                */                   
+  .word     USART6_IRQHandler                 /* USART6                       */                    
+  .word     I2C3_EV_IRQHandler                /* I2C3 event                   */                          
+  .word     I2C3_ER_IRQHandler                /* I2C3 error                   */                          
+  .word     0         /* USB OTG HS End Point 1 Out   */
+  .word     0          /* USB OTG HS End Point 1 In    */
+  .word     0            /* USB OTG HS Wakeup through EXTI */
+  .word     0                 /* USB OTG HS                   */
+  .word     0                   /* DCMI                         */
+  .word     0                   /* CRYP crypto                  */
+  .word     0               /* Hash and Rng                 */
+  .word     FPU_IRQHandler                    /* FPU                          */
+  .word     0                                 /* Reserved                     */
+  .word     0                                 /* Reserved                     */
+  .word     SPI4_IRQHandler                   /* SPI4                         */
+  .word     SPI5_IRQHandler                   /* SPI5                         */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
